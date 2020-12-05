@@ -1,7 +1,9 @@
 
 from textAnalytics import *
 
+import csv
 import pyodbc
+import random
 from datetime import datetime
 import seaborn as sn
 from sklearn.svm import SVC
@@ -18,51 +20,52 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 
-def sentenceVectorizer(source):
-    tf.disable_v2_behavior()
-    embedded = []
-    
-    if source == 'file':
-        file = pd.read_csv('GBvideos2.csv', error_bad_lines=False)
-        title = file[['video_id','title']].copy()
-        column = 'title'
-        fileName = 'sentencesEncoded2.csv'
-        title.to_csv(fileName,sep=',',encoding='utf-8')
-    elif source == 'data':
-        df = go.dataReturn()
-        data = df[['videoID','commentText']].copy()
-        title = data.sample(10)
-        column = 'commentText'
-        fileName = 'sentencesEncoded_New'+str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))+'.csv'
-        #title.to_csv(fileName,sep=',',encoding='utf-8')
-    else: pass
-        
-    embed = hub.Module(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
-    tf.logging.set_verbosity(tf.logging.ERROR)
 
-    with tf.Session() as session: #, tf.device('cpu:0'):
-        session.run([tf.global_variables_initializer(), tf.tables_initializer()])
-        message_embeddings = session.run(embed(title[column]))
+def embed_useT(module):
+    with tf.Graph().as_default():
+        sentences = tf.placeholder(tf.string)
+        embed = hub.Module(module)
+        embeddings = embed(sentences)
+        session = tf.train.MonitoredSession()
+    return lambda x: session.run(embeddings, {sentences: x})
 
-    for i, message_embedding in enumerate(np.array(message_embeddings).tolist()):
-        message_embedding_snippet = ", ".join((str(x) for x in message_embedding[:3]))
-        embedded.append([message_embedding_snippet])
+embed_fn = embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
+data = []
+vector = []
+with open('sentencesEncodedFull3.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    try:
+        for row in reader:
+            #videos = row['videoID']
+            comments = row['commentText']
+            vectors = row['embedded']
+            vector.append(vectors)
+            data.append(comments)
+    except UnicodeDecodeError: pass
 
-    title['embedded'] = embedded
-    return title
+random = random.sample(data, k=10)
+encoding_matrix = embed_fn(random)
+products = np.inner(encoding_matrix, encoding_matrix)
 
 
-def vectorDistances():
-    data = []
-    df = pd.read_csv('sentencesEncodedFull.csv')
-    #df = sentenceVectorizer('data')
-    a = df['embedded'].reset_index(drop=True)
-    b = df['embedded'].reset_index(drop=True)
-    for i in range(0,5):
-        data.append(a[i])
-    print(data[0][0])
+def plot_similarity(labels, features, rotation):
+    mask = np.zeros_like(features, dtype=np.bool)
+    mask[np.triu_indices_from(mask)] = True
+    sns.set(font_scale=.8)
+    g = sns.heatmap(
+        features,
+        xticklabels=labels,
+        yticklabels=labels,
+        vmin=0,
+        vmax=1,
+        cmap="YlOrRd",
+        mask=mask)
+    g.figure.set_size_inches(5,4)
+    g.set_xticklabels(labels, rotation=rotation)
+    g.set_title("Semantic Textual Similarity")
+    plt.show()
 
-vectorDistances()
+plot_similarity(random, products, 90)
 
 
 def databaseConnection():
