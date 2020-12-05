@@ -25,12 +25,10 @@ class commentVectors(object):
     def __init__(self):
         self.dataComm = go.dataReturn()
 
-
     def dataReturned(self):
         comments = self.dataComm['commentText'].sample(10)
         self.random = '"'+comments+'"'
 
-    
     def embed_useT(self,module):
         with tf.Graph().as_default():
             sentences = tf.placeholder(tf.string)
@@ -38,7 +36,6 @@ class commentVectors(object):
             embeddings = embed(sentences)
             session = tf.train.MonitoredSession()
         return lambda x: session.run(embeddings, {sentences: x})
-
 
     def plot_similarity(self):
         self.dataReturned()
