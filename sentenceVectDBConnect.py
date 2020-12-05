@@ -20,52 +20,60 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 
+class commentVectors(object):
 
-def embed_useT(module):
-    with tf.Graph().as_default():
-        sentences = tf.placeholder(tf.string)
-        embed = hub.Module(module)
-        embeddings = embed(sentences)
-        session = tf.train.MonitoredSession()
-    return lambda x: session.run(embeddings, {sentences: x})
-
-embed_fn = embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
-data = []
-vector = []
-with open('sentencesEncodedFull3.csv', newline='') as csvfile:
-    reader = csv.DictReader(csvfile)
-    try:
-        for row in reader:
-            #videos = row['videoID']
-            comments = row['commentText']
-            vectors = row['embedded']
-            vector.append(vectors)
-            data.append(comments)
-    except UnicodeDecodeError: pass
-
-random = random.sample(data, k=10)
-encoding_matrix = embed_fn(random)
-products = np.inner(encoding_matrix, encoding_matrix)
+    def __init__(self):
+        pass
 
 
-def plot_similarity(labels, features, rotation):
-    mask = np.zeros_like(features, dtype=np.bool)
-    mask[np.triu_indices_from(mask)] = True
-    sns.set(font_scale=.8)
-    g = sns.heatmap(
-        features,
-        xticklabels=labels,
-        yticklabels=labels,
-        vmin=0,
-        vmax=1,
-        cmap="YlOrRd",
-        mask=mask)
-    g.figure.set_size_inches(5,4)
-    g.set_xticklabels(labels, rotation=rotation)
-    g.set_title("Semantic Textual Similarity")
-    plt.show()
+    def fileImport(self):
+        data = []
+        vector = []
+        with open('sentencesEncodedFull3.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            try:
+                for row in reader:
+                    comments = row['commentText']
+                    vectors = row['embedded']
+                    vector.append(vectors)
+                    data.append(comments)
+            except UnicodeDecodeError: pass
+        self.random = random.sample(data, k=10)
 
-plot_similarity(random, products, 90)
+    
+    def embed_useT(self,module):
+        with tf.Graph().as_default():
+            sentences = tf.placeholder(tf.string)
+            embed = hub.Module(module)
+            embeddings = embed(sentences)
+            session = tf.train.MonitoredSession()
+        return lambda x: session.run(embeddings, {sentences: x})
+
+
+    def plot_similarity(self):
+        self.fileImport()
+        embed_fn = self.embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
+        encoding_matrix = embed_fn(self.random)
+        products = np.inner(encoding_matrix, encoding_matrix)
+        mask = np.zeros_like(products, dtype=np.bool)
+        mask[np.triu_indices_from(mask)] = True
+        sns.set(font_scale=.8)
+        g = sns.heatmap(
+            products,
+            xticklabels=self.random,
+            yticklabels=self.random,
+            vmin=0,
+            vmax=1,
+            cmap="YlOrRd",
+            mask=mask)
+        g.figure.set_size_inches(5,4)
+        g.set_xticklabels(self.random, rotation=90)
+        g.set_title("Semantic Textual Similarity")
+        plt.show()
+
+
+go = commentVectors()
+go.plot_similarity()
 
 
 def databaseConnection():
@@ -196,6 +204,7 @@ def modelPredictionsLR():
     modelLR = LogisticRegression()
 
     # performing principle components analysis to reduce the number of fields
+    # and use the eigenvalues as the data for modeling
     X_train_PCA = modelPCA.transform(X_train)
     X_val_PCA = modelPCA.transform(X_val)
     X_test_PCA = modelPCA.transform(X_test)
