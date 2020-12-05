@@ -23,22 +23,12 @@ from sklearn.model_selection import train_test_split
 class commentVectors(object):
 
     def __init__(self):
-        pass
+        self.dataComm = go.dataReturn()
 
 
-    def fileImport(self):
-        data = []
-        vector = []
-        with open('sentencesEncodedFull3.csv', newline='') as csvfile:
-            reader = csv.DictReader(csvfile)
-            try:
-                for row in reader:
-                    comments = row['commentText']
-                    vectors = row['embedded']
-                    vector.append(vectors)
-                    data.append(comments)
-            except UnicodeDecodeError: pass
-        self.random = random.sample(data, k=10)
+    def dataReturned(self):
+        comments = self.dataComm['commentText'].sample(10)
+        self.random = '"'+comments+'"'
 
     
     def embed_useT(self,module):
@@ -51,7 +41,7 @@ class commentVectors(object):
 
 
     def plot_similarity(self):
-        self.fileImport()
+        self.dataReturned()
         embed_fn = self.embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
         encoding_matrix = embed_fn(self.random)
         products = np.inner(encoding_matrix, encoding_matrix)
