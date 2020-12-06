@@ -1,5 +1,5 @@
 
-from textAnalytics import *
+from textAnalyticsApp import *
 
 import csv
 import pyodbc
@@ -21,7 +21,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 
-class commentVectors(object):
+class commentVectors(textAnalytics):
 
     def __init__(self,cluster):
         self.dataComm = go.dataReturnClusters()
@@ -65,7 +65,7 @@ class commentVectors(object):
         plt.show()
 
 
-go = commentVectors(1)
+go = commentVectors(4)
 go.plot_similarity()
 
 
