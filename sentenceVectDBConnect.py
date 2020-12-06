@@ -36,6 +36,19 @@ class commentVectors(textAnalytics):
 
     def embed_useT(self,module):
         with tf.Graph().as_default():
+
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+            if gpus:
+                try:
+                    tf.config.experimental.set_virtual_device_configuration(
+                    gpus[1],
+                    [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000),
+                      tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000)])
+                    logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+                    print(len(gpus), "Physical GPU,", len(logical_gpus), "Logical GPUs")
+                except RuntimeError as e:
+                  print(e)
+        
             sentences = tf.placeholder(tf.string)
             embed = hub.Module(module)
             embeddings = embed(sentences)
@@ -65,9 +78,9 @@ class commentVectors(textAnalytics):
         plt.show()
 
 
-go = commentVectors(4)
-if __name__ == '__main__':
-    Pool(go.plot_similarity())
+##go = commentVectors(3)
+##if __name__ == '__main__':
+##    Pool(go.plot_similarity())
 
 
 def databaseConnection():
@@ -206,17 +219,22 @@ def modelPredictionsLR():
     # performing Logistic regression on the new PCA model
     modelLR.fit(X_train_PCA,y_train)
     predictions = modelLR.predict(X_val_PCA)
+    #predictions = modelLR.predict(X_test_PCA)
 
     print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
-    print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_val_PCA,y_val),2)))
+    print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
+    #print('Test Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
     print('Confusion Matrix:')
     print(confusion_matrix(y_val,predictions))
+    #print(confusion_matrix(y_test,predictions))
     print('Classification Report:')
     print(classification_report(y_val, predictions))
+    #print(classification_report(y_test, predictions))
 
     print('Cross Validation scores from 8 iterations:')
     scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
     print(scores)
+    input_ = input('Hit Enter to leave')
 
     ##    Variance Explained by PCA model: [0.84009273 0.11403433]
     ##    Singlular values of PCA model: [285.6822093  105.25370206]
@@ -239,7 +257,7 @@ def modelPredictionsLR():
     ##    [0.64  0.725  0.715  0.765  0.673  0.7185  0.733  0.783]
 
 
-#modelPredictionsLR()
+modelPredictionsLR()
 
 
     
