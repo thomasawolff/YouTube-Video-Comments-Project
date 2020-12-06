@@ -66,7 +66,8 @@ class commentVectors(textAnalytics):
 
 
 go = commentVectors(4)
-go.plot_similarity()
+if __name__ == '__main__':
+    Pool(go.plot_similarity())
 
 
 def databaseConnection():
