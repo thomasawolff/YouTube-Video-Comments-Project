@@ -44,7 +44,7 @@ class textAnalytics(object):
         self.review_df = self.review_df[['videoID','categoryID','views','likes','dislikes',\
                                          'commentCount','commentText','commentLikes','replies']]
         self.stopWords = stopwords.words('english')
-        #self.review_df = self.review_df.sample(10000)
+        self.review_df = self.review_df.sample(10000)
         #print(self.stopWords)
 
     def bowConverter(self):
@@ -219,7 +219,7 @@ class textAnalytics(object):
 
 
     def dataReturn(self):
-        commOut = self.review_df[['videoID','views','categoryID','commentText']].copy()
+        commOut = self.review_df[['videoID','views','categoryID']].copy()
         return commOut
 
 
@@ -263,6 +263,13 @@ class textAnalytics(object):
         self.commNums = self.comm[['videoID','categoryID','views','clusters','polarity','subjectivity','sentimentBucket']].copy()
         return self.commNums
         #self.commNums.to_csv('youTubeVideosSentimentAnalysisOutput.csv',sep=',',encoding='utf-8')
+
+
+    def dataReturnClusters(self):
+        self.kMeansClustering()
+        commOut = self.review_df[['videoID','views','categoryID','commentText']].copy()
+        commOut['clusters'] = self.comm['clusters']
+        return commOut
        
 
     def kMeansVisualizer(self):

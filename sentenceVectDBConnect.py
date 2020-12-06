@@ -4,6 +4,7 @@ from textAnalytics import *
 import csv
 import pyodbc
 import random
+import textwrap
 from datetime import datetime
 import seaborn as sn
 from sklearn.svm import SVC
@@ -22,12 +23,16 @@ from sklearn.model_selection import train_test_split
 
 class commentVectors(object):
 
-    def __init__(self):
-        self.dataComm = go.dataReturn()
+    def __init__(self,cluster):
+        self.dataComm = go.dataReturnClusters()
+        self.cluster = cluster
+
 
     def dataReturned(self):
+        self.dataComm = self.dataComm.loc[self.dataComm['clusters'] == self.cluster]
         comments = self.dataComm['commentText'].sample(10)
         self.random = '"'+comments+'"'
+
 
     def embed_useT(self,module):
         with tf.Graph().as_default():
@@ -36,6 +41,7 @@ class commentVectors(object):
             embeddings = embed(sentences)
             session = tf.train.MonitoredSession()
         return lambda x: session.run(embeddings, {sentences: x})
+
 
     def plot_similarity(self):
         self.dataReturned()
@@ -47,19 +53,19 @@ class commentVectors(object):
         sns.set(font_scale=.8)
         g = sns.heatmap(
             products,
-            xticklabels=self.random,
-            yticklabels=self.random,
+            xticklabels=[textwrap.fill(e,15) for e in self.random],
+            yticklabels=[textwrap.fill(e,40) for e in self.random],
             vmin=0,
             vmax=1,
             cmap="YlOrRd",
             mask=mask)
-        g.figure.set_size_inches(5,4)
-        g.set_xticklabels(self.random, rotation=90)
+        g.figure.set_size_inches(10,8)
+        plt.xticks(rotation=0)
         g.set_title("Semantic Textual Similarity")
         plt.show()
 
 
-go = commentVectors()
+go = commentVectors(1)
 go.plot_similarity()
 
 
