@@ -23,6 +23,7 @@ from sklearn.model_selection import train_test_split
 
 class commentVectors(textAnalytics):
 
+    # calling the dataReturnClusters() method from the textAnalytics class
     def __init__(self,cluster):
         self.dataComm = go.dataReturnClusters()
         self.cluster = cluster
@@ -30,13 +31,14 @@ class commentVectors(textAnalytics):
 
     def dataReturned(self):
         self.dataComm = self.dataComm.loc[self.dataComm['clusters'] == self.cluster]
-        comments = self.dataComm['commentText'].sample(10)
+        # dont do more than 10 comments in a sample, very computationally intensive
+        comments = self.dataComm['commentText'].sample(10) 
         self.random = '"'+comments+'"'
 
 
+    # this project uses GPU processing in tensorflow for embedding the comments
     def embed_useT(self,module):
         with tf.Graph().as_default():
-
             gpus = tf.config.experimental.list_physical_devices('GPU')
             if gpus:
                 try:
@@ -47,7 +49,7 @@ class commentVectors(textAnalytics):
                     logical_gpus = tf.config.experimental.list_logical_devices('GPU')
                     print(len(gpus), "Physical GPU,", len(logical_gpus), "Logical GPUs")
                 except RuntimeError as e:
-                  print(e)
+                    print(e)
         
             sentences = tf.placeholder(tf.string)
             embed = hub.Module(module)
@@ -56,6 +58,7 @@ class commentVectors(textAnalytics):
         return lambda x: session.run(embeddings, {sentences: x})
 
 
+    # visualizes the heatmap for correlation from inner product between the sentence vectors.
     def plot_similarity(self):
         self.dataReturned()
         embed_fn = self.embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
@@ -78,11 +81,8 @@ class commentVectors(textAnalytics):
         plt.show()
 
 
-##go = commentVectors(3)
-##if __name__ == '__main__':
-##    Pool(go.plot_similarity())
 
-
+# I never used this but once in this project when I was working with data in SQL Server early in the project
 def databaseConnection():
     dataList = []
     cnxn = pyodbc.connect(r'Driver={SQL Server};Server=DESKTOP-K3QDR1M\MSSQLSERVER20191;Database=YouTube Data Project;Trusted_Connection=yes;')
@@ -131,6 +131,9 @@ def pandasAggregate():
     subjectivityPivot = dataSubjectivity.pivot(index='videoID', columns='dataRowNumSubjectivity', values='subjectivity')
     clustersPivot = dataClusters.pivot(index='videoID', columns='dataRowNumClusters', values='clusters')
 
+
+    # I split up this part of the project into csv files since running all this data through the
+    # pipeline would take a long time especially when I was developing the predictive model.
     sentimentPivot.to_csv('SentimentPartition.csv')
     subjectivityPivot.to_csv('SubjectivityPartition.csv')
     clustersPivot.to_csv('ClustersPartition.csv')
@@ -257,7 +260,7 @@ def modelPredictionsLR():
     ##    [0.64  0.725  0.715  0.765  0.673  0.7185  0.733  0.783]
 
 
-modelPredictionsLR()
+#modelPredictionsLR()
 
 
     
