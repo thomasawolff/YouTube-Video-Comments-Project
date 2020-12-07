@@ -32,7 +32,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 class textAnalytics(object):
 
-    def __init__(self,file1):
+    def __init__(self,file1,sample):
         self.limit = 100
         self.stringsList = []
         self.file1 = file1
@@ -44,7 +44,7 @@ class textAnalytics(object):
         self.review_df = self.review_df[['videoID','categoryID','views','likes','dislikes',\
                                          'commentCount','commentText','commentLikes','replies']]
         self.stopWords = stopwords.words('english')
-        self.review_df = self.review_df.sample(10000)
+        self.review_df = self.review_df.sample(sample)
         #print(self.stopWords)
 
     def bowConverter(self):
@@ -212,8 +212,8 @@ class textAnalytics(object):
         self.sentimentAnalysis()
         self.comm['views'] = np.log2(self.comm['views'])
         self.comm = self.comm[['videoID','categoryID','views','commentText','polarity','subjectivity','sentimentBucket']].copy()
-        column1 = 4 # column 'polarity' to be used in K means clustering
-        column2 = 5 # column 'subjectivity' to be used in K means clustering
+        column1 = 4
+        column2 = 5
         self.X = self.comm.iloc[:,[column1,column2]].values
         #print(self.X)
 
@@ -310,7 +310,7 @@ second_column = 11
 affinity = 'euclidean'
 linkage = 'ward'
 
-go = textAnalytics(url)
+
 
 
 

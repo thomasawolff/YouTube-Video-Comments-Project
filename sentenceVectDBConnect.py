@@ -24,7 +24,9 @@ from sklearn.model_selection import train_test_split
 class commentVectors(textAnalytics):
 
     # calling the dataReturnClusters() method from the textAnalytics class
-    def __init__(self,cluster):
+    def __init__(self,cluster,sampleNum,commentNum):
+        self.commentNum = commentNum
+        go = textAnalytics(url,sampleNum)
         self.dataComm = go.dataReturnClusters()
         self.cluster = cluster
 
@@ -32,7 +34,7 @@ class commentVectors(textAnalytics):
     def dataReturned(self):
         self.dataComm = self.dataComm.loc[self.dataComm['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive
-        comments = self.dataComm['commentText'].sample(10) 
+        comments = self.dataComm['commentText'].sample(self.commentNum) 
         self.random = '"'+comments+'"'
 
 
