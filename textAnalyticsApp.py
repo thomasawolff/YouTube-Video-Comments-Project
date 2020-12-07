@@ -212,8 +212,8 @@ class textAnalytics(object):
         self.sentimentAnalysis()
         self.comm['views'] = np.log2(self.comm['views'])
         self.comm = self.comm[['videoID','categoryID','views','commentText','polarity','subjectivity','sentimentBucket']].copy()
-        column1 = 4
-        column2 = 5
+        column1 = 4 # column 'polarity' to be used in K means clustering
+        column2 = 5 # column 'subjectivity' to be used in K means clustering
         self.X = self.comm.iloc[:,[column1,column2]].values
         #print(self.X)
 
