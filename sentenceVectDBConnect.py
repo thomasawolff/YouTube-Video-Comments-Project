@@ -8,8 +8,6 @@ import pickle
 import textwrap
 from datetime import datetime
 import seaborn as sn
-from sklearn.svm import SVC
-from sklearn import svm
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow.compat.v1 as tf
@@ -17,8 +15,6 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 
