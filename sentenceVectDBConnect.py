@@ -146,7 +146,7 @@ def pandasAggregate():
 
 def dataMerge():
     np.seterr(divide = 'ignore')
-    go = textAnalytics(url,472078)
+    go = textAnalytics(url,472077)
     df = go.dataReturn()
     df = pd.DataFrame(df)
     df = df[['videoID','views','categoryID']].drop_duplicates()
@@ -225,7 +225,8 @@ def modelPredictionsLR(operation):
     modelLR.fit(X_train_PCA,y_train)
 
     print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
-    print(confusion_matrix(y_val,predictions))
+    predictions = modelLR.predict(X_train_PCA)
+    print(confusion_matrix(y_train,predictions))
     
     if operation == 'validation':
         X_val_PCA = modelPCA.transform(X_val)
