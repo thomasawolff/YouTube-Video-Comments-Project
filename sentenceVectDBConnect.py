@@ -201,7 +201,7 @@ def dataMerge():
 
 #print(dataMerge())
 
-def modelPredictionsLR():
+def modelPredictionsLR(operation):
     data = dataMerge()
     
     X_train, X_test, y_train, y_test = train_test_split(data, data['viewsBucket'], test_size=0.2, random_state=1)
@@ -229,14 +229,20 @@ def modelPredictionsLR():
     #predictions = modelLR.predict(X_test_PCA)
 
     print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
-    print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
-    #print('Test Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
-    print('Confusion Matrix:')
     print(confusion_matrix(y_val,predictions))
-    #print(confusion_matrix(y_test,predictions))
-    print('Classification Report:')
-    print(classification_report(y_val, predictions))
-    #print(classification_report(y_test, predictions))
+    
+    if operation == 'validation':
+        print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_val_PCA,y_val),2)))
+        print('Confusion Matrix:')
+        print(confusion_matrix(y_val,predictions))
+        print('Classification Report:')
+        print(classification_report(y_val,predictions))
+    elif operation == 'test':
+        print('Test Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
+        print('Confusion Matrix:')
+        print(confusion_matrix(y_test,predictions))
+        print('Classification Report:')
+        print(classification_report(y_test,predictions))
 
     print('Cross Validation scores from 8 iterations:')
     scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
