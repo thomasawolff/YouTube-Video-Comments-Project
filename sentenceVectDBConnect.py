@@ -236,6 +236,7 @@ def modelPredictionsLR(operation):
         print(confusion_matrix(y_val,predictions))
         print('Classification Report:')
         print(classification_report(y_val,predictions))
+        
     elif operation == 'test':
         X_test_PCA = modelPCA.transform(X_test)
         predictions = modelLR.predict(X_test_PCA)
