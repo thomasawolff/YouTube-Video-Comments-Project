@@ -220,24 +220,24 @@ def modelPredictionsLR(operation):
     # performing principle components analysis to reduce the number of fields
     # and use the eigenvalues as the data for modeling
     X_train_PCA = modelPCA.transform(X_train)
-    X_val_PCA = modelPCA.transform(X_val)
-    X_test_PCA = modelPCA.transform(X_test)
 
     # performing Logistic regression on the new PCA model
     modelLR.fit(X_train_PCA,y_train)
-    predictions = modelLR.predict(X_val_PCA)
-    #predictions = modelLR.predict(X_test_PCA)
 
     print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
     print(confusion_matrix(y_val,predictions))
     
     if operation == 'validation':
+        X_val_PCA = modelPCA.transform(X_val)
+        predictions = modelLR.predict(X_val_PCA)
         print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_val_PCA,y_val),2)))
         print('Confusion Matrix:')
         print(confusion_matrix(y_val,predictions))
         print('Classification Report:')
         print(classification_report(y_val,predictions))
     elif operation == 'test':
+        X_test_PCA = modelPCA.transform(X_test)
+        predictions = modelLR.predict(X_test_PCA)
         print('Test Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
         print('Confusion Matrix:')
         print(confusion_matrix(y_test,predictions))
