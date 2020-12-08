@@ -8,6 +8,7 @@ import pickle
 import textwrap
 from datetime import datetime
 import seaborn as sn
+from sklearn.svm import SVC
 import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow.compat.v1 as tf
@@ -247,25 +248,27 @@ def modelPredictionsLR(operation):
     print(scores)
     input_ = input('Hit Enter to leave')
 
-    ##    Variance Explained by PCA model: [0.84009273 0.11403433]
-    ##    Singlular values of PCA model: [285.6822093  105.25370206]
-    ##    Train Performance Logistic Regression with PCA: 0.72
-    ##    Validation Performance Logistic Regression with PCA: 0.69
+    ##    Variance Explained by PCA model: [0.8362525 0.1170726]
+    ##    Singlular values of PCA model: [285.0068869  106.63855784]
+    ##    Train Performance Logistic Regression with PCA: 0.71
+    ##    [[415 332]
+    ##     [137 712]]
+    ##    Validation Performance Logistic Regression with PCA: 0.71
     ##    Confusion Matrix:
-    ##    [[258  74]
-    ##     [ 92 108]]
+    ##    [[148 100]
+    ##     [ 52 232]]
     ##    Classification Report:
-    ##                   precision    recall  f1-score   support
+    ##                  precision    recall  f1-score   support
     ##
-    ##               1       0.74      0.78      0.76       332
-    ##               2       0.59      0.54      0.57       200
+    ##               1       0.74      0.60      0.66       248
+    ##               2       0.70      0.82      0.75       284
     ##
-    ##        accuracy                           0.69       532
-    ##       macro avg       0.67      0.66      0.66       532
-    ##    weighted avg       0.68      0.69      0.68       532
+    ##        accuracy                           0.71       532
+    ##       macro avg       0.72      0.71      0.71       532
+    ##    weighted avg       0.72      0.71      0.71       532
     ##
     ##    Cross Validation scores from 8 iterations:
-    ##    [0.64  0.725  0.715  0.765  0.673  0.7185  0.733  0.783]
+    ##    [0.685   0.74   0.76   0.725   0.69   0.69   0.668   0.69]
 
 
 #modelPredictionsLR()
