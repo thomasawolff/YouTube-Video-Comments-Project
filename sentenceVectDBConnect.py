@@ -4,6 +4,7 @@ from textAnalyticsApp import *
 import csv
 import pyodbc
 import random
+import pickle
 import textwrap
 from datetime import datetime
 import seaborn as sn
@@ -144,7 +145,8 @@ def pandasAggregate():
 
 
 def dataMerge():
-    np.seterr(divide = 'ignore') 
+    np.seterr(divide = 'ignore')
+    go = textAnalytics(url,472078)
     df = go.dataReturn()
     df = pd.DataFrame(df)
     df = df[['videoID','views','categoryID']].drop_duplicates()
@@ -164,10 +166,10 @@ def dataMerge():
     merge4['views'] = np.log2(merge4['views'])
 
     # creating value buckets for the views field which will become a target variable for the model
-    merge4.loc[merge4['views'] < 21, 'viewsBucket'] = '1'
+    merge4.loc[merge4['views'] < 20, 'viewsBucket'] = '1'
     #merge4.loc[(merge4['views'] > 18) & (merge4['views'] <= 20), 'viewsBucket'] = '2'
     #merge4.loc[(merge4['views'] > 20) & (merge4['views'] <= 22), 'viewsBucket'] = '3'
-    merge4.loc[merge4['views'] > 21, 'viewsBucket'] = '2'
+    merge4.loc[merge4['views'] > 20, 'viewsBucket'] = '2'
 
     #print(round(merge4['views'].describe(include='all')),2)
     ##    25%        18.0
