@@ -305,8 +305,6 @@ class textAnalytics(object):
 
 
 url = (r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files\youTubeVideosUTF.csv')
-first_column = 10
-second_column = 11
 affinity = 'euclidean'
 linkage = 'ward'
 
