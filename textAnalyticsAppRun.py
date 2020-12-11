@@ -72,8 +72,7 @@ class textAnalytics(object):
         self.token_pattern = '(?u)\\b\\w+\\b'
         self.field = 'commentText'
         categoryPick['categoryID'] = categoryPick['categoryID'].astype(int)
-        review_df_All = data_df[['videoID','categoryID','views','likes','dislikes',\
-                                         'commentCount','commentText','commentLikes','replies']]
+        review_df_All = data_df[['videoID','categoryID','views','commentText']]
         review_df_All = pd.merge(categoryPick, review_df_All, on = 'categoryID')
         review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
@@ -245,7 +244,7 @@ class textAnalytics(object):
         
     def dataModify(self):
         self.sentimentAnalysis()
-        self.comm = self.comm[['videoID','categoryID','views','commentText','polarity','subjectivity','sentimentBucket']].copy()
+        self.comm = self.comm[['videoID','categoryID','commentText','polarity','subjectivity','sentimentBucket']].copy()
         self.X = self.comm.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
         #print(self.X)
 
