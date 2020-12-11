@@ -277,15 +277,6 @@ class textAnalytics(object):
         self.kmeans = KMeans(self.number_clusters, init = 'k-means++',max_iter=300,n_init=10)
         self.y_kmeans = self.kmeans.fit_predict(self.X)
         self.comm['clusters'] = self.y_kmeans
-        self.clust1 = self.comm.loc[self.comm['clusters'] == 0]
-        self.clust2 = self.comm.loc[self.comm['clusters'] == 1]
-        self.clust3 = self.comm.loc[self.comm['clusters'] == 2]
-        self.clust4 = self.comm.loc[self.comm['clusters'] == 3]
-        self.clust5 = self.comm.loc[self.comm['clusters'] == 4]
-        self.commNums = self.comm[['videoID','categoryID','views','clusters','polarity','subjectivity','sentimentBucket']].copy()
-        return self.commNums
-        #self.commNums.to_csv('youTubeVideosSentimentAnalysisOutput.csv',sep=',',encoding='utf-8')
-
        
 
     def kMeansVisualizer(self):
