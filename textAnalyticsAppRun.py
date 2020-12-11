@@ -106,7 +106,6 @@ class textAnalytics(object):
         self.bowConverter()
         self.biGramConverter()
         self.triGramConverter()
-        
         sns.set_style("darkgrid")
         counts = [len(self.words), len(self.bigrams), len(self.trigrams)]
         plt.plot(counts, color='cornflowerblue')
@@ -215,7 +214,6 @@ class textAnalytics(object):
         ##          345225  RRkdV_xmYOI          23    367544  ...      0.0      0.13          0.76
         ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
         
-
 
     def distPlotter(self):
         self.sentimentAnalysis()
