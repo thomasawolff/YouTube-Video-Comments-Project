@@ -54,7 +54,7 @@ def jSonYield():
 
 class textAnalytics(object):
 
-    def __init__(self,file1=None,numClusters=None,cluster=None,category=None):
+    def __init__(self,file1,numClusters=None,cluster=None,category=None):
         self.limit = 100
         self.stringsList = []
         self.file1 = file1
@@ -63,10 +63,8 @@ class textAnalytics(object):
         categoryPick = pd.DataFrame(dict_.items(),columns=['categoryID','category'])
         self.number_clusters = numClusters
         data_df = pd.read_csv(self.file1,low_memory=False)
-        #self.review_df = self.review_df['commentText']
         self.token_pattern = '(?u)\\b\\w+\\b'
         self.field = 'commentText'
-        #print(list(self.review_df))
         categoryPick['categoryID'] = categoryPick['categoryID'].astype(int)
         self.review_df_All = data_df[['videoID','categoryID','views','likes','dislikes',\
                                          'commentCount','commentText','commentLikes','replies']]
@@ -74,12 +72,6 @@ class textAnalytics(object):
         self.review_df_All = self.review_df_All.loc[self.review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
         self.review_df = self.review_df_All.sample(10000)
-        #print(self.stopWords)
-
-
-    def dataReturnAll(self):
-        commOut = self.review_df_All[['videoID','views','categoryID']].copy()
-        return commOut
 
 
     def bowConverter(self):
@@ -294,12 +286,6 @@ class textAnalytics(object):
         return self.commNums
         #self.commNums.to_csv('youTubeVideosSentimentAnalysisOutput.csv',sep=',',encoding='utf-8')
 
-
-    def dataReturnClusters(self):
-        self.kMeansClustering()
-        commOut = self.review_df[['videoID','views','categoryID','commentText']].copy()
-        commOut['clusters'] = self.comm['clusters']
-        return commOut
        
 
     def kMeansVisualizer(self):
@@ -319,10 +305,7 @@ class textAnalytics(object):
         self.kMeansClustering()
         commOut = self.review_df[['videoID','views','categoryID','commentText']].copy()
         commOut['clusters'] = self.comm['clusters']
-        #self.categoryPick['categoryID'] = self.categoryPick['categoryID'].astype(int)
-        #commOut = pd.merge(self.categoryPick, commOut, on = 'categoryID')
         dataComm = commOut.loc[commOut['clusters'] == self.cluster]
-        #dataComm = commOut.loc[commOut['category'] == self.category]
         # dont do more than 10 comments in a sample, very computationally intensive
         comments = dataComm['commentText'].sample(10) 
         self.random = '"'+comments+'"'
