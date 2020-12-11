@@ -51,18 +51,24 @@ def jSonYield():
 
 
 
-
 class textAnalytics(object):
 
-    def __init__(self,file1,numClusters=None,cluster=None,category=None):
+    def __init__(self,file1,
+                 numClusters=None,
+                 KmeansColumn1=None,
+                 KmeansColumn2=None,
+                 cluster=None,
+                 category=None):
+        
         self.limit = 100
         self.stringsList = []
-        self.file1 = file1
+        self.KmeansColumn1 = KmeansColumn1
+        self.KmeansColumn2 = KmeansColumn2
         self.cluster = cluster
         dict_ = jSonYield()
         categoryPick = pd.DataFrame(dict_.items(),columns=['categoryID','category'])
         self.number_clusters = numClusters
-        data_df = pd.read_csv(self.file1,low_memory=False)
+        data_df = pd.read_csv(file1,low_memory=False)
         self.token_pattern = '(?u)\\b\\w+\\b'
         self.field = 'commentText'
         categoryPick['categoryID'] = categoryPick['categoryID'].astype(int)
@@ -106,6 +112,7 @@ class textAnalytics(object):
         self.bowConverter()
         self.biGramConverter()
         self.triGramConverter()
+        
         sns.set_style("darkgrid")
         counts = [len(self.words), len(self.bigrams), len(self.trigrams)]
         plt.plot(counts, color='cornflowerblue')
@@ -215,6 +222,7 @@ class textAnalytics(object):
         ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
         
 
+
     def distPlotter(self):
         self.sentimentAnalysis()
         name1 = str('commentCount')
@@ -238,9 +246,7 @@ class textAnalytics(object):
     def dataModify(self):
         self.sentimentAnalysis()
         self.comm = self.comm[['videoID','categoryID','views','commentText','polarity','subjectivity','sentimentBucket']].copy()
-        column1 = 4
-        column2 = 5
-        self.X = self.comm.iloc[:,[column1,column2]].values
+        self.X = self.comm.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
         #print(self.X)
 
 
