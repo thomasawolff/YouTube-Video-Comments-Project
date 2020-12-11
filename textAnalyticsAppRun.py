@@ -66,12 +66,12 @@ class textAnalytics(object):
         self.token_pattern = '(?u)\\b\\w+\\b'
         self.field = 'commentText'
         categoryPick['categoryID'] = categoryPick['categoryID'].astype(int)
-        self.review_df_All = data_df[['videoID','categoryID','views','likes','dislikes',\
+        review_df_All = data_df[['videoID','categoryID','views','likes','dislikes',\
                                          'commentCount','commentText','commentLikes','replies']]
-        self.review_df_All = pd.merge(categoryPick, self.review_df_All, on = 'categoryID')
-        self.review_df_All = self.review_df_All.loc[self.review_df_All['category'] == category]
+        review_df_All = pd.merge(categoryPick, review_df_All, on = 'categoryID')
+        review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
-        self.review_df = self.review_df_All.sample(10000)
+        self.review_df = review_df_All.sample(10000)
 
 
     def bowConverter(self):
