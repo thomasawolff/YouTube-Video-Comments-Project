@@ -58,22 +58,30 @@ class textAnalytics(object):
                  KmeansColumn1=None,
                  KmeansColumn2=None,
                  cluster=None,
-                 category=None):
-        
+                 category=None,
+                 dataFeature1=None,
+                 dataFeature2=None,
+                 dataFeature3=None,
+                 dataFeature4=None
+                 ):
+
+        dict_ = jSonYield()
         self.limit = 100
         self.stringsList = []
+        self.cluster = cluster
+        self.number_clusters = numClusters
         self.KmeansColumn1 = KmeansColumn1
         self.KmeansColumn2 = KmeansColumn2
-        self.cluster = cluster
-        dict_ = jSonYield()
-        categoryPick = pd.DataFrame(dict_.items(),columns=['categoryID','category'])
-        self.number_clusters = numClusters
+        self.dataFeature1 = dataFeature1
+        self.dataFeature2 = dataFeature2
+        self.dataFeature3 = dataFeature3
+        self.dataFeature4 = dataFeature4
+        categoryPick = pd.DataFrame(dict_.items(),columns=[self.dataFeature2,'category'])
         data_df = pd.read_csv(file1,low_memory=False)
         self.token_pattern = '(?u)\\b\\w+\\b'
-        self.field = 'commentText'
-        categoryPick['categoryID'] = categoryPick['categoryID'].astype(int)
-        review_df_All = data_df[['videoID','categoryID','views','commentText']]
-        review_df_All = pd.merge(categoryPick, review_df_All, on = 'categoryID')
+        categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int)
+        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature3,self.dataFeature4]]
+        review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
         review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
         self.review_df = review_df_All.sample(10000)
@@ -81,14 +89,14 @@ class textAnalytics(object):
 
     def bowConverter(self):
         bow_converter = CountVectorizer(token_pattern=self.token_pattern)
-        x = bow_converter.fit_transform(self.review_df[self.field])
+        x = bow_converter.fit_transform(self.review_df[self.dataFeature4])
         self.words = bow_converter.get_feature_names()
         #print(len(words)) ## 29221
 
         
     def biGramConverter(self):
         bigram_converter = CountVectorizer(ngram_range=(2,2), token_pattern=self.token_pattern)
-        x2 = bigram_converter.fit_transform(self.review_df[self.field])
+        x2 = bigram_converter.fit_transform(self.review_df[self.dataFeature4])
         self.bigrams = bigram_converter.get_feature_names()
         #print(len(bigrams)) ## 368937
         #print(bigrams[-10:])
@@ -99,7 +107,7 @@ class textAnalytics(object):
 
     def triGramConverter(self):
         trigram_converter = CountVectorizer(ngram_range=(3,3), token_pattern=self.token_pattern)
-        x3 = trigram_converter.fit_transform(self.review_df[self.field])
+        x3 = trigram_converter.fit_transform(self.review_df[self.dataFeature4])
         self.trigrams = trigram_converter.get_feature_names()
         print(len(self.trigrams)) # 881609
         #print(self.trigrams[:10])
@@ -130,7 +138,7 @@ class textAnalytics(object):
 
 
     def wordCount(self):
-        for line in self.review_df[self.field]:
+        for line in self.review_df[self.dataFeature4]:
             wordsTokens = word_tokenize(line)
             self.stringsList.append(Counter(wordsTokens))
         ##print(self.stringsList)
@@ -244,7 +252,7 @@ class textAnalytics(object):
         
     def dataModify(self):
         self.sentimentAnalysis()
-        self.comm = self.comm[['videoID','categoryID','commentText','polarity','subjectivity','sentimentBucket']].copy()
+        self.comm = self.comm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']].copy()
         self.X = self.comm.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
         #print(self.X)
 
@@ -297,7 +305,7 @@ class textAnalytics(object):
 
     def dataReturned(self):
         self.kMeansClustering()
-        commOut = self.review_df[['videoID','views','categoryID','commentText']].copy()
+        commOut = self.review_df[[self.dataFeature1,self.dataFeature3,self.dataFeature2,self.dataFeature4]].copy()
         commOut['clusters'] = self.comm['clusters']
         dataComm = commOut.loc[commOut['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive

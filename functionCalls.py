@@ -2,12 +2,25 @@ from sentenceVectConnect2 import *
 
 url = (r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files\youTubeVideosUTF.csv')
 
+
+
+categories = ['Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals', 'Sports'
+          , 'Short Movies', 'Travel & Events', 'Gaming', 'Videoblogging', 'People & Blogs'
+          , 'Comedy', 'Entertainment', 'News & Politics', 'Howto & Style', 'Education'
+          , 'Science & Technology', 'Nonprofits & Activism', 'Movies', 'Anime/Animation'
+          , 'Action/Adventure', 'Classics', 'Comedy', 'Documentary', 'Drama', 'Family'
+          , 'Foreign', 'Horror', 'Sci-Fi/Fantasy', 'Thriller', 'Shorts', 'Shows', 'Trailers']
+
 go = textAnalytics(url,
-                   numClusters=4,
-                   KmeansColumn1=3,
-                   KmeansColumn2=4,
-                   cluster=3,
-                   category='Music')
+                   numClusters=5, # How many clusters do you want?
+                   KmeansColumn1=3, # First column for K means clustering
+                   KmeansColumn2=4, # Second column for K means clustering
+                   cluster=3, # Which cluster do you want to analyze?
+                   category='Music', # Which category do you want to analyze?
+                   dataFeature1 = 'videoID', # First of Four columns in dataset
+                   dataFeature2 = 'categoryID',
+                   dataFeature3 = 'views',
+                   dataFeature4 = 'commentText')
 #go.kMeansElbow()
 go.kMeansVisualizer()
 go.wordCloudVisualizer()
