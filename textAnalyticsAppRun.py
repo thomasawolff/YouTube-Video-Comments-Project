@@ -87,10 +87,10 @@ class textAnalytics(object):
         review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
         try:
-            self.review_df = review_df_All.sample(10000)
+            self.review_df = review_df_All.sample(10000).drop_duplicates()
         except ValueError:
             print(len(review_df_All))
-            self.review_df = review_df_All
+            self.review_df = review_df_All.drop_duplicates()
             
 
     def bowConverter(self):
@@ -301,12 +301,11 @@ class textAnalytics(object):
 
     def dataReturned(self):
         self.kMeansClustering()
-        commOut = self.review_df[[self.dataFeature1,self.dataFeature3,self.dataFeature2,self.dataFeature4]].copy().drop_duplicates()
-        commOut['clusters'] = self.comm['clusters']
-        commOut['sentimentBucket'] = self.comm['sentimentBucket']
-        dataComm = commOut.loc[commOut['clusters'] == self.cluster]
+        self.review_df['clusters'] = self.comm['clusters']
+        self.review_df['sentimentBucket'] = self.comm['sentimentBucket']
+        dataComm = self.review_df.loc[self.review_df['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive
-        dataComm.to_csv('dataComm.csv')
+        # dataComm.to_csv('dataComm.csv')
         comments = dataComm['commentText'].sample(10)
         self.random = '"'+comments+'"'
 
