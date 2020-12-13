@@ -206,28 +206,27 @@ class textAnalytics(object):
         self.stringCleaning()
         pol = []
         sub = []
-        self.comm = self.review_df 
-        for i in self.comm.commentText.values:
+        for i in self.review_df.commentText.values:
             try:
                 analysis = TextBlob(i)
                 pol.append(round(analysis.sentiment.polarity,2))
             except:
                 pol.append(0)
 
-        for i in self.comm.commentText.values:
+        for i in self.review_df.commentText.values:
             try:
                 analysis = TextBlob(i)
                 sub.append(round(analysis.sentiment.subjectivity,2))
             except:
                 sub.append(0)
-        self.comm['polarity']=pol
-        self.comm['subjectivity']=sub
-        self.comm.loc[self.comm['polarity'] < 0, 'sentimentBucket'] = -1
-        self.comm.loc[self.comm['polarity'] == 0, 'sentimentBucket'] = 0
-        self.comm.loc[self.comm['polarity'] > 0, 'sentimentBucket'] = 1
-        self.comm = self.comm.loc[self.comm['sentimentBucket'].astype(float) == self.sentiment]
-        #self.comm.to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
-        #print(self.comm)
+        self.review_df['polarity']=pol
+        self.review_df['subjectivity']=sub
+        self.review_df.loc[self.review_df['polarity'] < 0, 'sentimentBucket'] = -1
+        self.review_df.loc[self.review_df['polarity'] == 0, 'sentimentBucket'] = 0
+        self.review_df.loc[self.review_df['polarity'] > 0, 'sentimentBucket'] = 1
+        self.review_df = self.review_df.loc[self.review_df['sentimentBucket'].astype(float) == self.sentiment]
+        #self.review_df .to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
+        #print(self.review_df )
         ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
         ##          251449  LLGENw4C1jk          17   1002386  ...      0.0      0.50          0.50
         ##          39834   3VVnY86ulA8          22    802134  ...      0.0      0.00          0.10
@@ -240,27 +239,27 @@ class textAnalytics(object):
     def distPlotter(self):
         self.sentimentAnalysis()
         name1 = str('commentCount')
-        field = self.comm[name]
+        field = self.review_df [name]
         print(round(field.drop_duplicates().describe(include='all')),2)
         print('Kurtosis:',round(kurtosis(field),2))
-        print('Pearson R Correlation Views/Comments:',pearsonr(self.comm['polarity'],self.comm['subjectivity']))
-        #print('Pearson R Correlation Views/Likes:',pearsonr(self.comm['views'],self.comm['likes']))
-        #print('Pearson R Correlation Views/Dislikes:',pearsonr(self.comm['views'],self.comm['dislikes']))
+        print('Pearson R Correlation Views/Comments:',pearsonr(self.review_df ['polarity'],self.review_df ['subjectivity']))
+        #print('Pearson R Correlation Views/Likes:',pearsonr(self.review_df ['views'],self.review_df ['likes']))
+        #print('Pearson R Correlation Views/Dislikes:',pearsonr(self.review_df ['views'],self.review_df ['dislikes']))
         plt.grid(axis='y', alpha=0.50)
         plt.title('Histogram of '+name1)
         plt.xlabel(name2)
         plt.ylabel('Subjectivity')
         plt.hist(field,bins=70)
         plt.ticklabel_format(style='plain')
-        #sns.distplot(self.comm['views'],hist=True,fit=norm,kde=False,norm_hist=False)
-        #x,y = sns.kdeplot(self.comm['views']).get_lines()[0].get_data()
+        #sns.distplot(self.review_df ['views'],hist=True,fit=norm,kde=False,norm_hist=False)
+        #x,y = sns.kdeplot(self.review_df ['views']).get_lines()[0].get_data()
         plt.show()
 
         
     def dataModify(self):
         self.sentimentAnalysis()
-        self.comm = self.comm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']].copy()
-        self.X = self.comm.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
+        self.review_df  = self.review_df [[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
+        self.X = self.review_df.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
         #print(self.X)
 
       
@@ -283,7 +282,7 @@ class textAnalytics(object):
         self.dataModify()
         self.kmeans = KMeans(self.number_clusters, init = 'k-means++',max_iter=300,n_init=10)
         self.y_kmeans = self.kmeans.fit_predict(self.X)
-        self.comm['clusters'] = self.y_kmeans
+        self.review_df['clusters'] = self.y_kmeans
        
 
     def kMeansVisualizer(self):
@@ -301,8 +300,6 @@ class textAnalytics(object):
 
     def dataReturned(self):
         self.kMeansClustering()
-        self.review_df['clusters'] = self.comm['clusters']
-        self.review_df['sentimentBucket'] = self.comm['sentimentBucket']
         dataComm = self.review_df.loc[self.review_df['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive
         # dataComm.to_csv('dataComm.csv')
