@@ -54,10 +54,10 @@ def jSonYield():
 class textAnalytics(object):
 
     def __init__(self,file1,
-                 numClusters=None,
+                 numClusters=1,
                  KmeansColumn1=None,
                  KmeansColumn2=None,
-                 cluster=None,
+                 cluster=1,
                  category=None,
                  dataFeature1=None,
                  dataFeature2=None,
@@ -224,7 +224,7 @@ class textAnalytics(object):
         self.review_df.loc[self.review_df['polarity'] < 0, 'sentimentBucket'] = -1
         self.review_df.loc[self.review_df['polarity'] == 0, 'sentimentBucket'] = 0
         self.review_df.loc[self.review_df['polarity'] > 0, 'sentimentBucket'] = 1
-        self.review_df = self.review_df.loc[self.review_df['sentimentBucket'].astype(float) == self.sentiment]
+        self.review_df = self.review_df.loc[self.review_df['sentimentBucket'].astype(float) == float(self.sentiment)]
         #self.review_df .to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
         #print(self.review_df )
         ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
@@ -234,7 +234,6 @@ class textAnalytics(object):
         ##          345225  RRkdV_xmYOI          23    367544  ...      0.0      0.13          0.76
         ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
         
-
 
     def distPlotter(self):
         self.sentimentAnalysis()
@@ -258,9 +257,8 @@ class textAnalytics(object):
         
     def dataModify(self):
         self.sentimentAnalysis()
-        self.review_df  = self.review_df [[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
-        self.X = self.review_df.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
-        #print(self.X)
+        self.review_df  = self.review_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
+        self.X = self.review_df.iloc[:,[self.review_df.columns.get_loc('polarity'),self.review_df.columns.get_loc('subjectivity')]].values
 
       
     def kMeansElbow(self):
