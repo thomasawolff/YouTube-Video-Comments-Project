@@ -12,16 +12,18 @@ categories = ['Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals',
           , 'Foreign', 'Horror', 'Sci-Fi/Fantasy', 'Thriller', 'Shorts', 'Shows', 'Trailers']
 
 go = textAnalytics(url,
-                   numClusters=5, # How many clusters do you want?
+                   numClusters=3, # How many clusters do you want?
                    KmeansColumn1=3, # First column for K means clustering
                    KmeansColumn2=4, # Second column for K means clustering
-                   cluster=3, # Which cluster do you want to analyze?
-                   category='Music', # Which category do you want to analyze?
+                   cluster=2, # Which cluster do you want to analyze?
+                   category='Pets & Animals', # Which category do you want to analyze?
                    dataFeature1 = 'videoID', # First of Four columns in dataset
                    dataFeature2 = 'categoryID',
                    dataFeature3 = 'views',
-                   dataFeature4 = 'commentText')
+                   dataFeature4 = 'commentText',
+                   sentiment = 1.0) # 1.0 for positive, 0.0 for nuetral, -1.0 for negative
 #go.kMeansElbow()
-go.kMeansVisualizer()
-go.wordCloudVisualizer()
-go.plot_similarity()
+go.dendrogram()
+#go.kMeansVisualizer()
+#go.wordCloudVisualizer()
+#go.plot_similarity()

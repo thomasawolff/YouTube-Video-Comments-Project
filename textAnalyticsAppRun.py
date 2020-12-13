@@ -62,13 +62,15 @@ class textAnalytics(object):
                  dataFeature1=None,
                  dataFeature2=None,
                  dataFeature3=None,
-                 dataFeature4=None
+                 dataFeature4=None,
+                 sentiment = None
                  ):
 
         dict_ = jSonYield()
         self.limit = 100
         self.stringsList = []
         self.cluster = cluster
+        self.sentiment = sentiment
         self.number_clusters = numClusters
         self.KmeansColumn1 = KmeansColumn1
         self.KmeansColumn2 = KmeansColumn2
@@ -84,8 +86,12 @@ class textAnalytics(object):
         review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
         review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
-        self.review_df = review_df_All.sample(10000)
-
+        try:
+            self.review_df = review_df_All.sample(10000)
+        except ValueError:
+            print(len(review_df_All))
+            self.review_df = review_df_All
+            
 
     def bowConverter(self):
         bow_converter = CountVectorizer(token_pattern=self.token_pattern)
@@ -219,6 +225,7 @@ class textAnalytics(object):
         self.comm.loc[self.comm['polarity'] < 0, 'sentimentBucket'] = -1
         self.comm.loc[self.comm['polarity'] == 0, 'sentimentBucket'] = 0
         self.comm.loc[self.comm['polarity'] > 0, 'sentimentBucket'] = 1
+        self.comm = self.comm.loc[self.comm['sentimentBucket'].astype(float) == self.sentiment]
         #self.comm.to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
         #print(self.comm)
         ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
@@ -255,17 +262,6 @@ class textAnalytics(object):
         self.comm = self.comm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']].copy()
         self.X = self.comm.iloc[:,[self.KmeansColumn1,self.KmeansColumn2]].values
         #print(self.X)
-
-
-    def dendrogram(self,linkage):
-        self.dataModify()
-        # using dendrogram to optimal number of clusters
-        dendrogram = sch.dendrogram(sch.linkage(self.X,linkage))
-        plt.title('Dendrogram')
-        plt.xlabel('Sentiment Value')
-        plt.ylabel('Subjectivity Value')
-        plt.axis('off')
-        plt.show()
 
       
     def kMeansElbow(self):
@@ -305,11 +301,13 @@ class textAnalytics(object):
 
     def dataReturned(self):
         self.kMeansClustering()
-        commOut = self.review_df[[self.dataFeature1,self.dataFeature3,self.dataFeature2,self.dataFeature4]].copy()
+        commOut = self.review_df[[self.dataFeature1,self.dataFeature3,self.dataFeature2,self.dataFeature4]].copy().drop_duplicates()
         commOut['clusters'] = self.comm['clusters']
+        commOut['sentimentBucket'] = self.comm['sentimentBucket']
         dataComm = commOut.loc[commOut['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive
-        comments = dataComm['commentText'].sample(10) 
+        dataComm.to_csv('dataComm.csv')
+        comments = dataComm['commentText'].sample(10)
         self.random = '"'+comments+'"'
 
 
