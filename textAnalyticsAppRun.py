@@ -87,9 +87,10 @@ class textAnalytics(object):
         review_df_All = review_df_All.loc[review_df_All['category'] == category]
         self.stopWords = stopwords.words('english')
         try:
+            print('There are ',len(review_df_All),' comments on this topic')
             self.review_df = review_df_All.sample(10000).drop_duplicates()
         except ValueError:
-            print(len(review_df_All))
+            print('There are ',len(review_df_All),' comments on this topic')
             self.review_df = review_df_All.drop_duplicates()
             
 
@@ -300,7 +301,7 @@ class textAnalytics(object):
         self.kMeansClustering()
         dataComm = self.review_df.loc[self.review_df['clusters'] == self.cluster]
         # dont do more than 10 comments in a sample, very computationally intensive
-        # dataComm.to_csv('dataComm.csv')
+        dataComm.to_csv('dataComm.csv')
         comments = dataComm['commentText'].sample(10)
         self.random = '"'+comments+'"'
 

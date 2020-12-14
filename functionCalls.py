@@ -1,4 +1,5 @@
 from sentenceVectConnect2 import *
+import sys
 
 url = (r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files\youTubeVideosUTF.csv')
 
@@ -11,30 +12,54 @@ categories = ['Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals',
           , 'Action/Adventure', 'Classics', 'Comedy', 'Documentary', 'Drama', 'Family'
           , 'Foreign', 'Horror', 'Sci-Fi/Fantasy', 'Thriller', 'Shorts', 'Shows', 'Trailers']
 
-# 'polarity','subjectivity'
 print('')
 print('')
 print(categories)
 print('')
 print('')
-go = textAnalytics(url,
-                   numClusters= input('How many clusters do you want? '),
-                   cluster= input('Which cluster do you want to analyze? '),
-                   category=input('Which category do you want to analyze? '),
-                   dataFeature1 = 'videoID', # First of Four columns in dataset
-                   dataFeature2 = 'categoryID',
-                   dataFeature3 = 'views',
-                   dataFeature4 = 'commentText',
-                   sentiment = input('Which sentiment do you want? (1.0 for positive, 0.0 for nuetral, -1.0 for negative) '))
 
-print(go.number_clusters)
+while True:
+    exit_ = input('Type Done to leave ')
+    if exit_.lower() == 'done': sys.exit(0)
+    clusters = input('Do you know how many clusters you want? Yes/No: ')
+    if clusters.lower() == 'yes':
+        try:
+            try:
+                go = textAnalytics(url,
+                                   numClusters = int(input('How many clusters do you want?: ')),
+                                   cluster = int(input('Which cluster do you want to analyze?: ')),
+                                   category = input('Which category do you want to analyze?: '),
+                                   dataFeature1 = 'videoID', # First of Four columns in dataset
+                                   dataFeature2 = 'categoryID',
+                                   dataFeature3 = 'views',
+                                   dataFeature4 = 'commentText',
+                                   sentiment = float(input('Which sentiment do you want? (1.0 for positive, 0.0 for nuetral, -1.0 for negative): ')))
 
-if go.number_clusters == '':
-    go.kMeansElbow()
-##else:
-##    go.kMeansElbow()
-##    go.kMeansVisualizer()
-##    go.wordCloudVisualizer()
-##    go.plot_similarity()
+                go.kMeansElbow()
+                go.kMeansVisualizer()
+                go.wordCloudVisualizer()
+                #go.plot_similarity()
+            except ValueError:
+                print('You may have entered bad data')
+                pass
+        except TypeError:
+            print('You Entered an invalid cluster number, try: '+str(int(go.cluster)-1))
+            pass
+    else:
+         try:
+            try:
+                 go = textAnalytics(url,
+                                   category = input('Which category do you want to analyze?: ').lower(),
+                                   dataFeature1 = 'videoID', # First of Four columns in dataset
+                                   dataFeature2 = 'categoryID',
+                                   dataFeature3 = 'views',
+                                   dataFeature4 = 'commentText',
+                                   sentiment = input('Which sentiment do you want? (1.0 for positive, 0.0 for nuetral, -1.0 for negative): '))
 
-input('Press Enter to leave')
+                 go.kMeansElbow()
+            except ValueError:
+                print('You may have entered bad data')
+                pass
+         except TypeError:
+            print('You Entered an invalid cluster number, try: '+str(int(go.cluster)-1))
+            pass
