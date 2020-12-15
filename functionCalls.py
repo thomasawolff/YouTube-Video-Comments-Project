@@ -19,7 +19,7 @@ print('')
 print('')
 
 while True:
-    exit_ = input('Type Done to leave ')
+    exit_ = input('Type Done to leave or press enter ')
     if exit_.lower() == 'done': sys.exit(0)
     clusters = input('Do you know how many clusters you want? Yes/No: ')
     if clusters.lower() == 'yes':
@@ -28,17 +28,18 @@ while True:
                 go = textAnalytics(url,
                                    numClusters = int(input('How many clusters do you want?: ')),
                                    cluster = int(input('Which cluster do you want to analyze?: ')),
-                                   category = input('Which category do you want to analyze?: '),
+                                   #category = input('Which category do you want to analyze?: '),
+                                   channel = input('Which channel do you want to analyze?: '),
                                    dataFeature1 = 'videoID', # First of Four columns in dataset
                                    dataFeature2 = 'categoryID',
                                    dataFeature3 = 'views',
                                    dataFeature4 = 'commentText',
-                                   sentiment = float(input('Which sentiment do you want? (1.0 for positive, 0.0 for nuetral, -1.0 for negative): ')))
+                                   sentiment = input('Which sentiment do you want? (1.0 for positive,0.0 for nuetral,-1.0 for negative): '))
 
-                go.kMeansElbow()
+                #go.kMeansElbow()
                 go.kMeansVisualizer()
                 go.wordCloudVisualizer()
-                #go.plot_similarity()
+                go.plot_similarity()
             except ValueError:
                 print('You may have entered bad data')
                 pass
@@ -49,12 +50,13 @@ while True:
          try:
             try:
                  go = textAnalytics(url,
-                                   category = input('Which category do you want to analyze?: ').lower(),
+                                   #category = input('Which category do you want to analyze?: '),
+                                   channel = input('Which channel do you want to analyze?: '),
                                    dataFeature1 = 'videoID', # First of Four columns in dataset
                                    dataFeature2 = 'categoryID',
                                    dataFeature3 = 'views',
                                    dataFeature4 = 'commentText',
-                                   sentiment = input('Which sentiment do you want? (1.0 for positive, 0.0 for nuetral, -1.0 for negative): '))
+                                   sentiment = input('Which sentiment do you want? (1.0 for positive,0.0 for nuetral,-1.0 for negative): '))
 
                  go.kMeansElbow()
             except ValueError:

@@ -59,6 +59,7 @@ class textAnalytics(object):
                  KmeansColumn2=None,
                  cluster=1,
                  category=None,
+                 channel=None,
                  dataFeature1=None,
                  dataFeature2=None,
                  dataFeature3=None,
@@ -82,9 +83,12 @@ class textAnalytics(object):
         data_df = pd.read_csv(file1,low_memory=False)
         self.token_pattern = '(?u)\\b\\w+\\b'
         categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int)
-        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature3,self.dataFeature4]]
+        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4]]
         review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
-        review_df_All = review_df_All.loc[review_df_All['category'] == category]
+        videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
+        review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1)
+        #review_df_All = review_df_All.loc[review_df_All['category'] == category]
+        review_df_All = review_df_All.loc[review_df_All['channel'] == channel]
         self.stopWords = stopwords.words('english')
         try:
             print('There are ',len(review_df_All),' comments on this topic')
@@ -269,7 +273,7 @@ class textAnalytics(object):
         for i in range(1, 11):
            kmeans = KMeans(n_clusters = i, init = 'k-means++', max_iter=300,n_init=10,random_state=0)
            kmeans.fit(self.X)
-           wcss.append(kmeans.inertia_)   
+           wcss.append(kmeans.inertia_)
         plt.plot(range(1, 11),wcss)
         plt.title('The Elbow Method')
         plt.xlabel('Number of Data Clusters')
