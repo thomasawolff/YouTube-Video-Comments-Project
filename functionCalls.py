@@ -14,9 +14,9 @@ categories = ['Film & Animation', 'Autos & Vehicles', 'Music', 'Pets & Animals',
 
 print('')
 print('')
-print(categories)
-print('')
-print('')
+##print(categories)
+##print('')
+##print('')
 
 while True:
     exit_ = input('Type Done to leave or press enter ')
@@ -27,9 +27,8 @@ while True:
             try:
                 go = textAnalytics(url,
                                    numClusters = int(input('How many clusters do you want?: ')),
-                                   cluster = int(input('Which cluster do you want to analyze?: ')),
-                                   #category = input('Which category do you want to analyze?: '),
                                    channel = input('Which channel do you want to analyze?: '),
+                                   #category = input('Which category do you want to analyze?: '),
                                    dataFeature1 = 'videoID', # First of Four columns in dataset
                                    dataFeature2 = 'categoryID',
                                    dataFeature3 = 'views',
@@ -39,7 +38,7 @@ while True:
                 #go.kMeansElbow()
                 go.kMeansVisualizer()
                 go.wordCloudVisualizer()
-                go.plot_similarity()
+                #go.plot_similarity()
             except ValueError:
                 print('You may have entered bad data')
                 pass

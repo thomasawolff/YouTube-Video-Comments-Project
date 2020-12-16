@@ -54,10 +54,9 @@ def jSonYield():
 class textAnalytics(object):
 
     def __init__(self,file1,
-                 numClusters=1,
+                 numClusters=2,
                  KmeansColumn1=None,
                  KmeansColumn2=None,
-                 cluster=1,
                  category=None,
                  channel=None,
                  dataFeature1=None,
@@ -70,7 +69,6 @@ class textAnalytics(object):
         dict_ = jSonYield()
         self.limit = 100
         self.stringsList = []
-        self.cluster = cluster
         self.sentiment = sentiment
         self.number_clusters = numClusters
         self.KmeansColumn1 = KmeansColumn1
@@ -87,8 +85,10 @@ class textAnalytics(object):
         review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
         videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
         review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1)
-        #review_df_All = review_df_All.loc[review_df_All['category'] == category]
         review_df_All = review_df_All.loc[review_df_All['channel'] == channel]
+##        try:
+##            review_df_All = review_df_All.loc[review_df_All['category'] == category]
+##        except ValueError: pass
         self.stopWords = stopwords.words('english')
         try:
             print('There are ',len(review_df_All),' comments on this topic')
@@ -299,26 +299,21 @@ class textAnalytics(object):
         plt.ylabel('Subjectivity Value')
         plt.legend(set(self.y_kmeans))
         plt.show()
-
-
-    def dataReturned(self):
-        self.kMeansClustering()
-        dataComm = self.review_df.loc[self.review_df['clusters'] == self.cluster]
-        # dont do more than 10 comments in a sample, very computationally intensive
+        cluster = int(input('Which cluster do you want to analyze?: '))
+        dataComm = self.review_df.loc[self.review_df['clusters'] == cluster]
         dataComm.to_csv('dataComm.csv')
-        comments = dataComm['commentText'].sample(10)
-        self.random = '"'+comments+'"'
+
 
 
     def wordCloudVisualizer(self):
-        self.dataReturned()
+        dataComm = pd.read_csv('dataComm.csv')
         wordcloud = WordCloud(
             background_color='white',
             stopwords= ["dtype",'commentText','object','video','Name']+stopwords.words('english'),
             max_words=200,
             max_font_size=40, 
             scale=3
-            ).generate(str(self.random))
+            ).generate(str(dataComm['commentText']))
         fig = plt.figure(1, figsize=(6,6))
         plt.title('Word cloud of chosen cluster')
         plt.axis('off')
@@ -350,7 +345,9 @@ class textAnalytics(object):
 
     # visualizes the heatmap for correlation from inner product between the sentence vectors.
     def plot_similarity(self):
-        self.dataReturned()
+        dataComm = pd.read_csv('dataComm.csv')
+        comments = dataComm['commentText'].sample(10)
+        self.random = '"'+comments+'"'
         embed_fn = self.embed_useT(r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files')
         encoding_matrix = embed_fn(self.random)
         products = np.inner(encoding_matrix, encoding_matrix)
