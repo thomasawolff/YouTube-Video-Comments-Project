@@ -77,18 +77,18 @@ class textAnalytics(object):
         self.dataFeature2 = dataFeature2
         self.dataFeature3 = dataFeature3
         self.dataFeature4 = dataFeature4
-        categoryPick = pd.DataFrame(dict_.items(),columns=[self.dataFeature2,'category'])
-        data_df = pd.read_csv(file1,low_memory=False)
+        categoryPick = pd.DataFrame(dict_.items(),columns=[self.dataFeature2,'category']) # converting json csv file into dataframe
+        data_df = pd.read_csv(file1,low_memory=False) # reading the comments file into application as dataframe
         self.token_pattern = '(?u)\\b\\w+\\b'
-        categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int)
+        categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int) # converting category ID into integer
         review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4]]
-        review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
-        videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
-        review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1)
-        review_df_All = review_df_All.loc[review_df_All['channel'] == channel]
-##        try:
-##            review_df_All = review_df_All.loc[review_df_All['category'] == category]
-##        except ValueError: pass
+        review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2) # merging category data with comments data
+        videoTitles = pd.read_csv('YouTubeVideoTitles.csv') # reading in the general video data into application as dataframe
+        review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1) # merging video data with category and comments data
+        review_df_All = review_df_All.loc[review_df_All['channel'] == channel] # filtering final dataset to chosen channel
+        try:
+            review_df_All = review_df_All.loc[review_df_All['category'] == category] # or choose a category
+        except ValueError: pass
         self.stopWords = stopwords.words('english')
         try:
             print('There are ',len(review_df_All),' comments on this topic')
