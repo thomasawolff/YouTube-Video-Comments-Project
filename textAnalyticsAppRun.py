@@ -208,7 +208,6 @@ class textAnalytics(object):
     
 
     def sentimentAnalysis(self):
-        self.stringCleaning()
         pol = []
         sub = []
         for i in self.review_df.commentText.values:
