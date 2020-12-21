@@ -157,9 +157,9 @@ def modelPredictionsLR(operation):
         print('Classification Report:')
         print(classification_report(y_test,predictions))
 
-    print('Cross Validation scores from 8 iterations:')
-    scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
-    print(scores)
+    #print('Cross Validation scores from 8 iterations:')
+    #scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
+    #print(scores)
 
     with open('YouTubeModelPickle','wb') as p:
         pickle.dump(modelLR,p)
