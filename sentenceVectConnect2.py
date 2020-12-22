@@ -58,7 +58,7 @@ def pandasAggregate():
 def dataMerge():
     np.seterr(divide = 'ignore')
     go = textAnalytics(url)
-    df = go.dataReturnAll()[['videoID','views','categoryID']].drop_duplicates()
+    df = go.dataReturn()[['videoID','views','categoryID']].drop_duplicates()
     df = df.set_index('videoID')
     
     encoded = pd.read_csv('sentencesEncoded2.csv')
@@ -138,8 +138,13 @@ def modelPredictionsLR(operation):
     print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
     predictions = modelLR.predict(X_train_PCA)
     print(confusion_matrix(y_train,predictions))
+
+    if operation == 'cross validation':
+        print('Cross Validation scores from 8 iterations:')
+        scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
+        print(scores)
     
-    if operation == 'validation':
+    elif operation == 'validation':
         X_val_PCA = modelPCA.transform(X_val)
         predictions = modelLR.predict(X_val_PCA)
         print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_val_PCA,y_val),2)))
@@ -157,9 +162,6 @@ def modelPredictionsLR(operation):
         print('Classification Report:')
         print(classification_report(y_test,predictions))
 
-    #print('Cross Validation scores from 8 iterations:')
-    #scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
-    #print(scores)
 
     with open('YouTubeModelPickle','wb') as p:
         pickle.dump(modelLR,p)
