@@ -77,37 +77,136 @@ class textAnalytics(object):
         self.dataFeature2 = dataFeature2
         self.dataFeature3 = dataFeature3
         self.dataFeature4 = dataFeature4
-        categoryPick = pd.DataFrame(dict_.items(),columns=[self.dataFeature2,'category']) # converting json csv file into dataframe
-        data_df = pd.read_csv(file1,low_memory=False) # reading the comments file into application as dataframe
+        categoryPick = pd.DataFrame(dict_.items(),columns=[self.dataFeature2,'category'])
+        data_df = pd.read_csv(file1,low_memory=False)
         self.token_pattern = '(?u)\\b\\w+\\b'
-        categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int) # converting category ID into integer
+        categoryPick[self.dataFeature2] = categoryPick[self.dataFeature2].astype(int)
         review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4]]
-        review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2) # merging category data with comments data
-        videoTitles = pd.read_csv('YouTubeVideoTitles.csv') # reading in the general video data into application as dataframe
-        review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1) # merging video data with category and comments data
-        review_df_All = review_df_All.loc[review_df_All['channel'] == channel] # filtering final dataset to chosen channel
-        try:
-            review_df_All = review_df_All.loc[review_df_All['category'] == category] # or choose a category
-        except ValueError: pass
+        review_df_All = pd.merge(categoryPick, review_df_All, on = self.dataFeature2)
+        videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
+        review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1)
+        review_df_All = review_df_All.loc[review_df_All['channel'] == channel]
+##        try:
+##            review_df_All = review_df_All.loc[review_df_All['category'] == category]
+##        except ValueError: pass
         self.stopWords = stopwords.words('english')
         try:
             print('There are ',len(review_df_All),' comments on this topic')
-            self.review_df = review_df_All.sample(10000).drop_duplicates()
+            self.dataComm = review_df_All.sample(10000).drop_duplicates()
         except ValueError:
             print('There are ',len(review_df_All),' comments on this topic')
-            self.review_df = review_df_All.drop_duplicates()
-            
+            self.dataComm = review_df_All.drop_duplicates()
+                
+
+    def sentimentAnalysis(self):
+        #self.stringCleaning()
+        pol = []
+        sub = []
+        for i in self.dataComm.commentText.values:
+            try:
+                analysis = TextBlob(i)
+                pol.append(round(analysis.sentiment.polarity,2))
+            except:
+                pol.append(0)
+
+        for i in self.dataComm.commentText.values:
+            try:
+                analysis = TextBlob(i)
+                sub.append(round(analysis.sentiment.subjectivity,2))
+            except:
+                sub.append(0)
+        self.dataComm['polarity']=pol
+        self.dataComm['subjectivity']=sub
+        self.dataComm.loc[self.dataComm['polarity'] < 0, 'sentimentBucket'] = -1
+        self.dataComm.loc[self.dataComm['polarity'] == 0, 'sentimentBucket'] = 0
+        self.dataComm.loc[self.dataComm['polarity'] > 0, 'sentimentBucket'] = 1
+        self.dataComm = self.dataComm.loc[self.dataComm['sentimentBucket'].astype(float) == float(self.sentiment)]
+        #dataComm .to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
+        #print(dataComm )
+        ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
+        ##          251449  LLGENw4C1jk          17   1002386  ...      0.0      0.50          0.50
+        ##          39834   3VVnY86ulA8          22    802134  ...      0.0      0.00          0.10
+        ##          203460  iA86imHKCMw          17   3005399  ...      0.0     -0.08          0.69
+        ##          345225  RRkdV_xmYOI          23    367544  ...      0.0      0.13          0.76
+        ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
+        
+
+    def distPlotter(self):
+        self.sentimentAnalysis()
+        name = str('commentCount')
+        field = self.dataComm [name]
+        print(round(field.drop_duplicates().describe(include='all')),2)
+        print('Kurtosis:',round(kurtosis(field),2))
+        print('Pearson R Correlation Views/Comments:',pearsonr(dataComm ['polarity'],dataComm ['subjectivity']))
+        #print('Pearson R Correlation Views/Likes:',pearsonr(dataComm ['views'],dataComm ['likes']))
+        #print('Pearson R Correlation Views/Dislikes:',pearsonr(dataComm ['views'],dataComm ['dislikes']))
+        plt.grid(axis='y', alpha=0.50)
+        plt.title('Histogram of '+name1)
+        plt.xlabel(name2)
+        plt.ylabel('Subjectivity')
+        plt.hist(field,bins=70)
+        plt.ticklabel_format(style='plain')
+        #sns.distplot(dataComm ['views'],hist=True,fit=norm,kde=False,norm_hist=False)
+        #x,y = sns.kdeplot(dataComm ['views']).get_lines()[0].get_data()
+        plt.show()
+
+        
+    def dataModify(self):
+        self.sentimentAnalysis()
+        self.dataComm  = self.dataComm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
+        self.X = self.dataComm.iloc[:,[self.dataComm.columns.get_loc('polarity'),self.dataComm.columns.get_loc('subjectivity')]].values
+
+      
+    def kMeansElbow(self):
+        self.dataModify()
+        # using the elbow method to find optimal number of clusters
+        wcss = []
+        for i in range(1, 11):
+           kmeans = KMeans(n_clusters = i, init = 'k-means++', max_iter=300,n_init=10,random_state=0)
+           kmeans.fit(self.X)
+           wcss.append(kmeans.inertia_)
+        plt.plot(range(1, 11),wcss)
+        plt.title('The Elbow Method')
+        plt.xlabel('Number of Data Clusters')
+        plt.ylabel('WCSS')
+        plt.show()
+
+      
+    def kMeansClustering(self):
+        self.dataModify()
+        self.kmeans = KMeans(self.number_clusters, init = 'k-means++',max_iter=300,n_init=10)
+        self.y_kmeans = self.kmeans.fit_predict(self.X)
+        self.dataComm['clusters'] = self.y_kmeans
+       
+
+    def kMeansVisualizer(self):
+        self.kMeansClustering()
+        # visualizing the clusters using K-means
+        for i in range(0,self.number_clusters):
+           plt.scatter(self.X[self.y_kmeans == i, 0], self.X[self.y_kmeans == i, 1], s = 100)
+           #plt.scatter(self.kmeans.cluster_centers_[:,0],self.kmeans.cluster_centers_[:,1],s=50,c='yellow',label='Centroids')
+        plt.title('Clusters of Sentiment vs Subjectivity: K-Means Method')
+        plt.xlabel('Sentiment Value')
+        plt.ylabel('Subjectivity Value')
+        plt.legend(set(self.y_kmeans))
+        plt.show()
+        cluster = int(input('Which cluster do you want to analyze?: '))
+        self.dataComm = self.dataComm.loc[self.dataComm['clusters'] == cluster]
+        self.dataComm.to_csv('dataComm.csv')
+
 
     def bowConverter(self):
+        dataComm = pd.read_csv('dataComm.csv')
         bow_converter = CountVectorizer(token_pattern=self.token_pattern)
-        x = bow_converter.fit_transform(self.review_df[self.dataFeature4])
+        x = bow_converter.fit_transform(dataComm[self.dataFeature4])
         self.words = bow_converter.get_feature_names()
         #print(len(words)) ## 29221
 
         
     def biGramConverter(self):
+        dataComm = pd.read_csv('dataComm.csv')
         bigram_converter = CountVectorizer(ngram_range=(2,2), token_pattern=self.token_pattern)
-        x2 = bigram_converter.fit_transform(self.review_df[self.dataFeature4])
+        x2 = bigram_converter.fit_transform(dataComm[self.dataFeature4])
         self.bigrams = bigram_converter.get_feature_names()
         #print(len(bigrams)) ## 368937
         #print(bigrams[-10:])
@@ -117,11 +216,12 @@ class textAnalytics(object):
 
 
     def triGramConverter(self):
+        dataComm = pd.read_csv('dataComm.csv')
         trigram_converter = CountVectorizer(ngram_range=(3,3), token_pattern=self.token_pattern)
-        x3 = trigram_converter.fit_transform(self.review_df[self.dataFeature4])
+        x3 = trigram_converter.fit_transform(dataComm[self.dataFeature4])
         self.trigrams = trigram_converter.get_feature_names()
         print(len(self.trigrams)) # 881609
-        #print(self.trigrams[:10])
+        print(self.trigrams[400:450])
         ##        ['0 0 eye', '0 20 less', '0 39 oz', '0 39 pizza', '0 5 i'
         ##         , '0 50 to', '0 6 can', '0 75 oysters', '0 75 that', '0 75 to']
 
@@ -149,7 +249,8 @@ class textAnalytics(object):
 
 
     def wordCount(self):
-        for line in self.review_df[self.dataFeature4]:
+        dataComm = pd.read_csv('dataComm.csv')
+        for line in dataComm[self.dataFeature4]:
             wordsTokens = word_tokenize(line)
             self.stringsList.append(Counter(wordsTokens))
         ##print(self.stringsList)
@@ -205,103 +306,6 @@ class textAnalytics(object):
         ##          always/RB
         ##          say/VBP
         ##          (PERSON Mistakes/NNP)
-    
-
-    def sentimentAnalysis(self):
-        pol = []
-        sub = []
-        for i in self.review_df.commentText.values:
-            try:
-                analysis = TextBlob(i)
-                pol.append(round(analysis.sentiment.polarity,2))
-            except:
-                pol.append(0)
-
-        for i in self.review_df.commentText.values:
-            try:
-                analysis = TextBlob(i)
-                sub.append(round(analysis.sentiment.subjectivity,2))
-            except:
-                sub.append(0)
-        self.review_df['polarity']=pol
-        self.review_df['subjectivity']=sub
-        self.review_df.loc[self.review_df['polarity'] < 0, 'sentimentBucket'] = -1
-        self.review_df.loc[self.review_df['polarity'] == 0, 'sentimentBucket'] = 0
-        self.review_df.loc[self.review_df['polarity'] > 0, 'sentimentBucket'] = 1
-        self.review_df = self.review_df.loc[self.review_df['sentimentBucket'].astype(float) == float(self.sentiment)]
-        #self.review_df .to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
-        #print(self.review_df )
-        ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
-        ##          251449  LLGENw4C1jk          17   1002386  ...      0.0      0.50          0.50
-        ##          39834   3VVnY86ulA8          22    802134  ...      0.0      0.00          0.10
-        ##          203460  iA86imHKCMw          17   3005399  ...      0.0     -0.08          0.69
-        ##          345225  RRkdV_xmYOI          23    367544  ...      0.0      0.13          0.76
-        ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
-        
-
-    def distPlotter(self):
-        self.sentimentAnalysis()
-        name1 = str('commentCount')
-        field = self.review_df [name]
-        print(round(field.drop_duplicates().describe(include='all')),2)
-        print('Kurtosis:',round(kurtosis(field),2))
-        print('Pearson R Correlation Views/Comments:',pearsonr(self.review_df ['polarity'],self.review_df ['subjectivity']))
-        #print('Pearson R Correlation Views/Likes:',pearsonr(self.review_df ['views'],self.review_df ['likes']))
-        #print('Pearson R Correlation Views/Dislikes:',pearsonr(self.review_df ['views'],self.review_df ['dislikes']))
-        plt.grid(axis='y', alpha=0.50)
-        plt.title('Histogram of '+name1)
-        plt.xlabel(name2)
-        plt.ylabel('Subjectivity')
-        plt.hist(field,bins=70)
-        plt.ticklabel_format(style='plain')
-        #sns.distplot(self.review_df ['views'],hist=True,fit=norm,kde=False,norm_hist=False)
-        #x,y = sns.kdeplot(self.review_df ['views']).get_lines()[0].get_data()
-        plt.show()
-
-        
-    def dataModify(self):
-        self.sentimentAnalysis()
-        self.review_df  = self.review_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
-        self.X = self.review_df.iloc[:,[self.review_df.columns.get_loc('polarity'),self.review_df.columns.get_loc('subjectivity')]].values
-
-      
-    def kMeansElbow(self):
-        self.dataModify()
-        # using the elbow method to find optimal number of clusters
-        wcss = []
-        for i in range(1, 11):
-           kmeans = KMeans(n_clusters = i, init = 'k-means++', max_iter=300,n_init=10,random_state=0)
-           kmeans.fit(self.X)
-           wcss.append(kmeans.inertia_)
-        plt.plot(range(1, 11),wcss)
-        plt.title('The Elbow Method')
-        plt.xlabel('Number of Data Clusters')
-        plt.ylabel('WCSS')
-        plt.show()
-
-      
-    def kMeansClustering(self):
-        self.dataModify()
-        self.kmeans = KMeans(self.number_clusters, init = 'k-means++',max_iter=300,n_init=10)
-        self.y_kmeans = self.kmeans.fit_predict(self.X)
-        self.review_df['clusters'] = self.y_kmeans
-       
-
-    def kMeansVisualizer(self):
-        self.kMeansClustering()
-        # visualizing the clusters using K-means
-        for i in range(0,self.number_clusters):
-           plt.scatter(self.X[self.y_kmeans == i, 0], self.X[self.y_kmeans == i, 1], s = 100)
-           #plt.scatter(self.kmeans.cluster_centers_[:,0],self.kmeans.cluster_centers_[:,1],s=50,c='yellow',label='Centroids')
-        plt.title('Clusters of Sentiment vs Subjectivity: K-Means Method')
-        plt.xlabel('Sentiment Value')
-        plt.ylabel('Subjectivity Value')
-        plt.legend(set(self.y_kmeans))
-        plt.show()
-        cluster = int(input('Which cluster do you want to analyze?: '))
-        dataComm = self.review_df.loc[self.review_df['clusters'] == cluster]
-        dataComm.to_csv('dataComm.csv')
-
 
 
     def wordCloudVisualizer(self):
@@ -327,13 +331,15 @@ class textAnalytics(object):
             if gpus:
                 try:
                     tf.config.experimental.set_virtual_device_configuration(
-                    gpus[1],
+                    gpus[2],
                     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000),
                       tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000)])
                     logical_gpus = tf.config.experimental.list_logical_devices('GPU')
                     print(len(gpus), "Physical GPU,", len(logical_gpus), "Logical GPUs")
                 except RuntimeError as e:
                     print(e)
+                
+            else: tf.config.experimental.list_physical_devices(device_type='CPU')
         
             sentences = tf.placeholder(tf.string)
             embed = hub.Module(module)
