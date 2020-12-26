@@ -130,20 +130,20 @@ class textAnalytics(object):
     def distPlotter(self):
         self.sentimentAnalysis()
         name = str('commentCount')
-        field = self.dataComm [name]
+        field = self.dataComm[name]
         print(round(field.drop_duplicates().describe(include='all')),2)
         print('Kurtosis:',round(kurtosis(field),2))
-        print('Pearson R Correlation Views/Comments:',pearsonr(dataComm ['polarity'],dataComm ['subjectivity']))
-        #print('Pearson R Correlation Views/Likes:',pearsonr(dataComm ['views'],dataComm ['likes']))
-        #print('Pearson R Correlation Views/Dislikes:',pearsonr(dataComm ['views'],dataComm ['dislikes']))
+        print('Pearson R Correlation Views/Comments:',pearsonr(self.dataComm ['polarity'],self.dataComm ['subjectivity']))
+        #print('Pearson R Correlation Views/Likes:',pearsonr(self.dataComm ['views'],self.dataComm ['likes']))
+        #print('Pearson R Correlation Views/Dislikes:',pearsonr(self.dataComm ['views'],self.dataComm ['dislikes']))
         plt.grid(axis='y', alpha=0.50)
         plt.title('Histogram of '+name1)
         plt.xlabel(name2)
         plt.ylabel('Subjectivity')
         plt.hist(field,bins=70)
         plt.ticklabel_format(style='plain')
-        #sns.distplot(dataComm ['views'],hist=True,fit=norm,kde=False,norm_hist=False)
-        #x,y = sns.kdeplot(dataComm ['views']).get_lines()[0].get_data()
+        #sns.distplot(self.dataComm ['views'],hist=True,fit=norm,kde=False,norm_hist=False)
+        #x,y = sns.kdeplot(self.dataComm ['views']).get_lines()[0].get_data()
         plt.show()
 
         
