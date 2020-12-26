@@ -55,8 +55,6 @@ class textAnalytics(object):
 
     def __init__(self,file1,
                  numClusters=2,
-                 KmeansColumn1=None,
-                 KmeansColumn2=None,
                  category=None,
                  channel=None,
                  dataFeature1=None,
@@ -71,8 +69,6 @@ class textAnalytics(object):
         self.stringsList = []
         self.sentiment = sentiment
         self.number_clusters = numClusters
-        self.KmeansColumn1 = KmeansColumn1
-        self.KmeansColumn2 = KmeansColumn2
         self.dataFeature1 = dataFeature1
         self.dataFeature2 = dataFeature2
         self.dataFeature3 = dataFeature3
@@ -238,12 +234,6 @@ class textAnalytics(object):
         plt.show()
 
 
-    def wordLem(self):
-        self.bowConverter()
-        for line in self.words:
-            print(line+":"+lemmatizer.lemmatize(line))
-
-
     def wordCount(self):
         dataComm = pd.read_csv('dataComm.csv')
         for line in dataComm[self.dataFeature4]:
@@ -327,7 +317,7 @@ class textAnalytics(object):
             if gpus:
                 try:
                     tf.config.experimental.set_virtual_device_configuration(
-                    gpus[2],
+                    gpus[1],
                     [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000),
                       tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4000)])
                     logical_gpus = tf.config.experimental.list_logical_devices('GPU')
