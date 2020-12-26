@@ -31,14 +31,16 @@ while True:
                                    #category = input('Which category do you want to analyze?: '),
                                    dataFeature1 = 'videoID', # First of Four columns in dataset
                                    dataFeature2 = 'categoryID',
-                                   dataFeature3 = 'views',
+                                   #dataFeature3 = 'views',
                                    dataFeature4 = 'commentText',
                                    sentiment = input('Which sentiment do you want? (1.0 for positive,0.0 for nuetral,-1.0 for negative): '))
 
                 #go.kMeansElbow()
                 go.kMeansVisualizer()
+                go.triGramConverter()
+                go.tagsMaker()
                 go.wordCloudVisualizer()
-                #go.plot_similarity()
+                go.plot_similarity()
             except ValueError:
                 print('You may have entered bad data')
                 pass
