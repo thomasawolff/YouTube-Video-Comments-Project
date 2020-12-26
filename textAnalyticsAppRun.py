@@ -86,9 +86,6 @@ class textAnalytics(object):
         videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
         review_df_All = pd.merge(videoTitles, review_df_All, on = dataFeature1)
         review_df_All = review_df_All.loc[review_df_All['channel'] == channel]
-##        try:
-##            review_df_All = review_df_All.loc[review_df_All['category'] == category]
-##        except ValueError: pass
         self.stopWords = stopwords.words('english')
         try:
             print('There are ',len(review_df_All),' comments on this topic')
@@ -99,7 +96,6 @@ class textAnalytics(object):
                 
 
     def sentimentAnalysis(self):
-        #self.stringCleaning()
         pol = []
         sub = []
         for i in self.dataComm.commentText.values:
