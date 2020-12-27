@@ -89,7 +89,7 @@ class textAnalytics(object):
 
 
 go = textAnalytics(url,
-                   numClusters = 3,
+                   numClusters = 5,
                    dataFeature1 = 'videoID', 
                    dataFeature2 = 'categoryID',
                    dataFeature3 = 'views',
@@ -280,7 +280,7 @@ def modelPredictionsLR(operation):
     ##    weighted avg       0.71      0.71      0.71       532
 
 
-modelPredictionsLR('test set')
+modelPredictionsLR('cross validation')
     
 
 
