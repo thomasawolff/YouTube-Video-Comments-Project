@@ -77,6 +77,10 @@ class textAnalytics(object):
         self.sentimentAnalysis()
         self.dataComm  = self.dataComm[[self.dataFeature1,self.dataFeature2,self.dataFeature3,self.dataFeature4,\
                                         'polarity','subjectivity','sentimentBucket']]
+        # using the polarity and subjectivity data for k means
+        # accessing them by their index but calling them by column name
+        # iloc[:,[self.dataComm.columns.get_loc('polarity'): iloc calls for the index location of the
+        # column polarity which is called by column name through get_loc which returns the index position of that column
         self.X = self.dataComm.iloc[:,[self.dataComm.columns.get_loc('polarity'),self.dataComm.columns.get_loc('subjectivity')]].values
 
 
@@ -129,6 +133,7 @@ def pandasAggregate():
 
     # I split up this part of the project into csv files since running all this data through the
     # pipeline would take a long time especially when I was developing the predictive model.
+    # This takes the columns of index 20 through 21 for each data set
     sentimentPivot = sentimentPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
     sentimentPivot.to_csv('SentimentPartition.csv')
     subjectivityPivot = subjectivityPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
@@ -148,18 +153,21 @@ def dataMerge():
     df = df.set_index('videoID')
    
     clusters = pd.read_csv('ClustersPartition.csv')
-    clusters['41'].replace('', np.nan, inplace=True)
-    clusters.dropna(subset=['41'], inplace=True)
+    clusters['41'].replace('', np.nan, inplace=True) # replacing empty cells in row 41 with nan's
+    clusters.dropna(subset=['41'], inplace=True) # dropping rows with nan's to create continuous rows of data
+    clusters = clusters.set_index('videoID')
     
     subject = pd.read_csv('SubjectivityPartition.csv')
     subject['41'].replace('', np.nan, inplace=True)
     subject.dropna(subset=['41'], inplace=True)
+    subject = subject.set_index('videoID')
     
     sentiment = pd.read_csv('SentimentPartition.csv')
     sentiment['41'].replace('', np.nan, inplace=True)
     sentiment.dropna(subset=['41'], inplace=True)
+    sentiment = sentiment.set_index('videoID')
 
-    merge2 = pd.merge(df, clusters, on = 'videoID')
+    merge2 = pd.merge(df, clusters, on = 'videoID') # merging together the datasets by videoID
     merge3 = pd.merge(merge2, subject, on = 'videoID')
     merge4 = pd.merge(merge3, sentiment, on = 'videoID')
 
@@ -255,7 +263,7 @@ def modelPredictionsLR(operation):
         print(classification_report(y_test,predictions))
 
 
-    with open('YouTubeModelPickle','wb') as p:
+    with open('YouTubeModelPickle','wb') as p: # saving the trained model into a pickle file
         pickle.dump(modelLR,p)
     
     input_ = input('Hit Enter to leave')
