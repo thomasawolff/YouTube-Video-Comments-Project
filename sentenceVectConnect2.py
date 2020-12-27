@@ -142,7 +142,6 @@ def dataMerge():
     df = df[['videoID','views','categoryID']].drop_duplicates()
     df = df.set_index('videoID')
     
-    #encoded = pd.read_csv('sentencesEncoded2.csv')
     clusters = pd.read_csv('ClustersPartitionFinal20.csv')
     subject = pd.read_csv('SubjectivityPartitionFinal20.csv')
     sentiment = pd.read_csv('SentimentPartitionFinal20.csv')
