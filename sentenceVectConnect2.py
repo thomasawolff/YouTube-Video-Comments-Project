@@ -98,7 +98,6 @@ go = textAnalytics(url,
 
 def pandasAggregate():
     data = go.kMeansClustering()
-    print(data)
     
     dataPolarity = data[['videoID','sentimentBucket']].copy()
     dataSubjectivity = data[['videoID','subjectivity']].copy()
@@ -261,27 +260,27 @@ def modelPredictionsLR(operation):
     
     input_ = input('Hit Enter to leave')
 
-    ##    Variance Explained by PCA model: [0.8362525 0.1170726]
-    ##    Singlular values of PCA model: [285.0068869  106.63855784]
-    ##    Train Performance Logistic Regression with PCA: 0.71
-    ##    [[415 332]
-    ##     [137 712]]
-    ##    Validation Performance Logistic Regression with PCA: 0.71
+    ##    Variance Explained by PCA model: [0.84019443 0.11170318]
+    ##    Singlular values of PCA model: [286.4529428  104.44704467]
+    ##    Train Performance Logistic Regression with PCA: 0.73
+    ##    [[542 196]
+    ##     [235 622]]
+    ##    Test Performance Logistic Regression with PCA: 0.71
     ##    Confusion Matrix:
-    ##    [[148 100]
-    ##     [ 52 232]]
+    ##    [[184  65]
+    ##     [ 90 193]]
     ##    Classification Report:
     ##                  precision    recall  f1-score   support
     ##
-    ##               1       0.74      0.60      0.66       248
-    ##               2       0.70      0.82      0.75       284
+    ##               1       0.67      0.74      0.70       249
+    ##               2       0.75      0.68      0.71       283
     ##
     ##        accuracy                           0.71       532
-    ##       macro avg       0.72      0.71      0.71       532
-    ##    weighted avg       0.72      0.71      0.71       532
+    ##       macro avg       0.71      0.71      0.71       532
+    ##    weighted avg       0.71      0.71      0.71       532
 
 
-modelPredictionsLR('cross validation')
+modelPredictionsLR('test set')
     
 
 
