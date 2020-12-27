@@ -35,7 +35,7 @@ class textAnalytics(object):
         self.dataFeature4 = dataFeature4
         data_df = pd.read_csv(file1,low_memory=False)
         self.token_pattern = '(?u)\\b\\w+\\b'
-        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4]]
+        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature3,self.dataFeature4]]
         videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
         self.dataComm = pd.merge(videoTitles, review_df_All, on = dataFeature1)
         self.stopWords = stopwords.words('english')
@@ -75,7 +75,8 @@ class textAnalytics(object):
         
     def dataModify(self):
         self.sentimentAnalysis()
-        self.dataComm  = self.dataComm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
+        self.dataComm  = self.dataComm[[self.dataFeature1,self.dataFeature2,self.dataFeature3,self.dataFeature4,\
+                                        'polarity','subjectivity','sentimentBucket']]
         self.X = self.dataComm.iloc[:,[self.dataComm.columns.get_loc('polarity'),self.dataComm.columns.get_loc('subjectivity')]].values
 
 
@@ -91,6 +92,7 @@ go = textAnalytics(url,
                    numClusters = 3,
                    dataFeature1 = 'videoID', 
                    dataFeature2 = 'categoryID',
+                   dataFeature3 = 'views',
                    dataFeature4 = 'commentText')
 
 
@@ -128,23 +130,35 @@ def pandasAggregate():
 
     # I split up this part of the project into csv files since running all this data through the
     # pipeline would take a long time especially when I was developing the predictive model.
+    sentimentPivot = sentimentPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
     sentimentPivot.to_csv('SentimentPartition.csv')
+    subjectivityPivot = subjectivityPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
     subjectivityPivot.to_csv('SubjectivityPartition.csv')
+    clustersPivot = clustersPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
     clustersPivot.to_csv('ClustersPartition.csv')
+    return data
 
 #pandasAggregate()
 
 
 def dataMerge():
-    #pandasAggregate()
+    df = pandasAggregate()
     np.seterr(divide = 'ignore')
-    df = pd.read_csv('youTubeVideosUTF.csv', low_memory=False)
+    #df = pd.read_csv('youTubeVideosUTF.csv',low_memory=False)
     df = df[['videoID','views','categoryID']].drop_duplicates()
     df = df.set_index('videoID')
+   
+    clusters = pd.read_csv('ClustersPartition.csv')
+    clusters['41'].replace('', np.nan, inplace=True)
+    clusters.dropna(subset=['41'], inplace=True)
     
-    clusters = pd.read_csv('ClustersPartitionFinal20.csv')
-    subject = pd.read_csv('SubjectivityPartitionFinal20.csv')
-    sentiment = pd.read_csv('SentimentPartitionFinal20.csv')
+    subject = pd.read_csv('SubjectivityPartition.csv')
+    subject['41'].replace('', np.nan, inplace=True)
+    subject.dropna(subset=['41'], inplace=True)
+    
+    sentiment = pd.read_csv('SentimentPartition.csv')
+    sentiment['41'].replace('', np.nan, inplace=True)
+    sentiment.dropna(subset=['41'], inplace=True)
 
     merge2 = pd.merge(df, clusters, on = 'videoID')
     merge3 = pd.merge(merge2, subject, on = 'videoID')
@@ -200,12 +214,12 @@ def modelPredictionsLR(operation):
     del X_test['viewsBucket']
     del X_val['viewsBucket']
 
-    try: 
-        modelPCA = PCA(n_components = 2).fit(X_train)
-        print('Variance Explained by PCA model:',modelPCA.explained_variance_ratio_)
-        print('Singlular values of PCA model:',modelPCA.singular_values_)
-        modelLR = LogisticRegression()
-    except ValueError: pass
+    #try: 
+    modelPCA = PCA(n_components = 2).fit(X_train)
+    print('Variance Explained by PCA model:',modelPCA.explained_variance_ratio_)
+    print('Singlular values of PCA model:',modelPCA.singular_values_)
+    modelLR = LogisticRegression()
+    #except ValueError: pass
 
     # performing principle components analysis to reduce the number of fields
     # and use the eigenvalues as the data for modeling
@@ -267,7 +281,7 @@ def modelPredictionsLR(operation):
     ##    weighted avg       0.72      0.71      0.71       532
 
 
-modelPredictionsLR('test set')
+modelPredictionsLR('cross validation')
     
 
 
