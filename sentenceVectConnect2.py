@@ -133,7 +133,7 @@ def pandasAggregate():
 
     # I split up this part of the project into csv files since running all this data through the
     # pipeline would take a long time especially when I was developing the predictive model.
-    # This takes the columns of index 20 through 21 for each data set
+    # This takes the columns of index 20 through 40 for each data set
     sentimentPivot = sentimentPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
     sentimentPivot.to_csv('SentimentPartition.csv')
     subjectivityPivot = subjectivityPivot.iloc[:,[20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40]]
