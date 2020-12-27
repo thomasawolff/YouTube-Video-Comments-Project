@@ -1,10 +1,14 @@
 
-from textAnalyticsAppRun import *
 
-import pyodbc
+
 import random
 import pickle
 import textwrap
+import numpy as np
+import pandas as pd
+from textblob import TextBlob
+from sklearn.cluster import KMeans
+from nltk.corpus import stopwords
 from datetime import datetime
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
@@ -13,10 +17,86 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 
+url = (r'C:\Users\moose_f8sa3n2\Google Drive\Research Methods\Course Project\YouTube Data\Unicode Files\youTubeVideosUTF.csv')
+
+class textAnalytics(object):
+
+    def __init__(self,file1,
+                 numClusters=3,
+                 dataFeature1=None,
+                 dataFeature2=None,
+                 dataFeature3=None,
+                 dataFeature4=None,
+                 ):
+        self.number_clusters = numClusters
+        self.dataFeature1 = dataFeature1
+        self.dataFeature2 = dataFeature2
+        self.dataFeature3 = dataFeature3
+        self.dataFeature4 = dataFeature4
+        data_df = pd.read_csv(file1,low_memory=False)
+        self.token_pattern = '(?u)\\b\\w+\\b'
+        review_df_All = data_df[[self.dataFeature1,self.dataFeature2,self.dataFeature4]]
+        videoTitles = pd.read_csv('YouTubeVideoTitles.csv')
+        self.dataComm = pd.merge(videoTitles, review_df_All, on = dataFeature1)
+        self.stopWords = stopwords.words('english')
+                
+
+    def sentimentAnalysis(self):
+        pol = []
+        sub = []
+        for i in self.dataComm.commentText.values:
+            try:
+                analysis = TextBlob(i)
+                pol.append(round(analysis.sentiment.polarity,2))
+            except:
+                pol.append(0)
+
+        for i in self.dataComm.commentText.values:
+            try:
+                analysis = TextBlob(i)
+                sub.append(round(analysis.sentiment.subjectivity,2))
+            except:
+                sub.append(0)
+        self.dataComm['polarity']=pol
+        self.dataComm['subjectivity']=sub
+        #print(self.dataComm['polarity'])
+        self.dataComm.loc[self.dataComm['polarity'] < 0, 'sentimentBucket'] = -1
+        self.dataComm.loc[self.dataComm['polarity'] == 0, 'sentimentBucket'] = 0
+        self.dataComm.loc[self.dataComm['polarity'] > 0, 'sentimentBucket'] = 1
+        #dataComm .to_csv('youTubeVideosSentimentAnalysisSample10000.csv',sep=',',encoding='utf-8')
+        ##                    videoID       categoryID  views  ...    replies  polarity   subjectivity
+        ##          251449  LLGENw4C1jk          17   1002386  ...      0.0      0.50          0.50
+        ##          39834   3VVnY86ulA8          22    802134  ...      0.0      0.00          0.10
+        ##          203460  iA86imHKCMw          17   3005399  ...      0.0     -0.08          0.69
+        ##          345225  RRkdV_xmYOI          23    367544  ...      0.0      0.13          0.76
+        ##          402953  vQ3XgMKAgxc          10  51204658  ...      0.0      0.25          0.50
+        
+
+        
+    def dataModify(self):
+        self.sentimentAnalysis()
+        self.dataComm  = self.dataComm[[self.dataFeature1,self.dataFeature2,self.dataFeature4,'polarity','subjectivity','sentimentBucket']]
+        self.X = self.dataComm.iloc[:,[self.dataComm.columns.get_loc('polarity'),self.dataComm.columns.get_loc('subjectivity')]].values
+
+
+      
+    def kMeansClustering(self):
+        self.dataModify()
+        kmeans = KMeans(self.number_clusters, init = 'k-means++',max_iter=300,n_init=10)
+        self.dataComm['clusters'] = kmeans.fit_predict(self.X)
+        return self.dataComm
+
+
+go = textAnalytics(url,
+                   numClusters = 3,
+                   dataFeature1 = 'videoID', 
+                   dataFeature2 = 'categoryID',
+                   dataFeature4 = 'commentText')
 
 
 def pandasAggregate():
     data = go.kMeansClustering()
+    print(data)
     
     dataPolarity = data[['videoID','sentimentBucket']].copy()
     dataSubjectivity = data[['videoID','subjectivity']].copy()
@@ -56,18 +136,18 @@ def pandasAggregate():
 
 
 def dataMerge():
+    #pandasAggregate()
     np.seterr(divide = 'ignore')
-    go = textAnalytics(url)
-    df = go.dataReturn()[['videoID','views','categoryID']].drop_duplicates()
+    df = pd.read_csv('youTubeVideosUTF.csv', low_memory=False)
+    df = df[['videoID','views','categoryID']].drop_duplicates()
     df = df.set_index('videoID')
     
-    encoded = pd.read_csv('sentencesEncoded2.csv')
+    #encoded = pd.read_csv('sentencesEncoded2.csv')
     clusters = pd.read_csv('ClustersPartitionFinal20.csv')
     subject = pd.read_csv('SubjectivityPartitionFinal20.csv')
     sentiment = pd.read_csv('SentimentPartitionFinal20.csv')
 
-    merge1 = pd.merge(df, encoded, on = 'videoID')
-    merge2 = pd.merge(merge1, clusters, on = 'videoID')
+    merge2 = pd.merge(df, clusters, on = 'videoID')
     merge3 = pd.merge(merge2, subject, on = 'videoID')
     merge4 = pd.merge(merge3, sentiment, on = 'videoID')
 
@@ -144,7 +224,7 @@ def modelPredictionsLR(operation):
         scores = cross_val_score(modelLR, X_train_PCA, y_train, cv=8)
         print(scores)
     
-    elif operation == 'validation':
+    elif operation == 'validation set':
         X_val_PCA = modelPCA.transform(X_val)
         predictions = modelLR.predict(X_val_PCA)
         print('Validation Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_val_PCA,y_val),2)))
@@ -153,7 +233,7 @@ def modelPredictionsLR(operation):
         print('Classification Report:')
         print(classification_report(y_val,predictions))
         
-    elif operation == 'test':
+    elif operation == 'test set':
         X_test_PCA = modelPCA.transform(X_test)
         predictions = modelLR.predict(X_test_PCA)
         print('Test Performance Logistic Regression with PCA: '+str(round(+modelLR.score(X_test_PCA,y_test),2)))
@@ -186,12 +266,9 @@ def modelPredictionsLR(operation):
     ##        accuracy                           0.71       532
     ##       macro avg       0.72      0.71      0.71       532
     ##    weighted avg       0.72      0.71      0.71       532
-    ##
-    ##    Cross Validation scores from 8 iterations:
-    ##    [0.685   0.74   0.76   0.725   0.69   0.69   0.668   0.69]
 
 
-
+modelPredictionsLR('test set')
     
 
 
