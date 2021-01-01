@@ -234,9 +234,9 @@ def modelPredictionsLR(operation):
     # performing Logistic regression on the new PCA model
     modelLR.fit(X_train_PCA,y_train)
 
-    print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
-    predictions = modelLR.predict(X_train_PCA)
-    print(confusion_matrix(y_train,predictions))
+    #print('Train Performance Logistic Regression with PCA: '+str(round(modelLR.score(X_train_PCA,y_train),2)))
+    #predictions = modelLR.predict(X_train_PCA)
+    #print(confusion_matrix(y_train,predictions))
 
     if operation == 'cross validation':
         print('Cross Validation scores from 8 iterations:')
