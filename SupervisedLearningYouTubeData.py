@@ -146,9 +146,9 @@ def pandasAggregate():
 
 
 def dataMerge():
-    df = pandasAggregate()
-    np.seterr(divide = 'ignore')
-    #df = pd.read_csv('youTubeVideosUTF.csv',low_memory=False)
+    #df = pandasAggregate()
+    #np.seterr(divide = 'ignore')
+    df = pd.read_csv('youTubeVideosUTF.csv',low_memory=False)
     df = df[['videoID','views','categoryID']].drop_duplicates()
     df = df.set_index('videoID')
    
