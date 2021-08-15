@@ -103,9 +103,9 @@ go = textAnalytics(url,
 def pandasAggregate():
     data = go.kMeansClustering()
     
-    dataPolarity = data[['videoID','sentimentBucket']].copy()
-    dataSubjectivity = data[['videoID','subjectivity']].copy()
-    dataClusters = data[['videoID','clusters']].copy()
+    dataPolarity = data[['videoID','sentimentBucket']]
+    dataSubjectivity = data[['videoID','subjectivity']]
+    dataClusters = data[['videoID','clusters']]
 
     # this code partitions the data by video ID and counts the number of values in the sentiment bucket column
     # giving each row an incremented value which is then used for the pivot of the data
