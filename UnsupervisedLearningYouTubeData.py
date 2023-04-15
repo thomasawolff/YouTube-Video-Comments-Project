@@ -310,7 +310,7 @@ class textAnalytics(object):
         plt.show()
 
 
-    # this project uses GPU processing in tensorflow for embedding the comments
+    # this project uses GPU processing in tensorflow for embedding the comments for analysis
     def embed_useT(self,module):
         with tf.Graph().as_default():
             gpus = tf.config.experimental.list_physical_devices('GPU')
