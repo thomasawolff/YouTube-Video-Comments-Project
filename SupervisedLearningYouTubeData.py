@@ -260,7 +260,7 @@ def modelPredictionsLR(operation):
         print(classification_report(y_test,predictions))
 
 
-    with open('YouTubeModelPickle','wb') as p: # saving the trained model into a pickle file
+    with open('YouTubeModelPickle','wb') as p: # saving the trained model into a pickle file so the trained model can be used in an application
         pickle.dump(modelLR,p)
     
     input_ = input('Hit Enter to leave')
